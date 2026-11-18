@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Search, ArrowLeft, ArrowRight } from "lucide-react";
-import { articles } from "@/lib/articles";
+import { getPublicArticles } from "@/lib/content";
 
 export const metadata: Metadata = { title: "Search", description: "Search PaulNova articles on technology, AI, digital business, education and careers.", robots: { index: false, follow: true } };
 type Props = { searchParams: Promise<{ q?: string }> };
+export const dynamic = "force-dynamic";
 export default async function SearchPage({ searchParams }: Props) {
   const { q = "" } = await searchParams;
   const query = q.trim();
+  const articles = await getPublicArticles();
   const results = query ? articles.filter((article) => [article.title, article.excerpt, article.category, ...article.sections.flatMap((section) => [section.heading, ...section.paragraphs])].join(" ").toLowerCase().includes(query.toLowerCase())) : [];
   return <main className="min-h-screen bg-[#f7f8fc]">
     <header className="border-b border-slate-100 bg-white"><div className="container flex h-[76px] items-center justify-between"><Link href="/" className="text-2xl font-black tracking-tight text-[#101828]">Paul<span className="text-[#635bff]">Nova</span></Link><Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-[#635bff]"><ArrowLeft size={16}/> Home</Link></div></header>
