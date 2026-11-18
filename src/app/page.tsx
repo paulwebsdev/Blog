@@ -48,7 +48,7 @@ function StoryCard({ story, featured = false }: { story: typeof stories[number],
       <p className="mt-3 text-sm leading-6 text-slate-500">{story.excerpt}</p>
       <span className="mt-5 inline-flex items-center gap-2 text-xs font-bold text-[#635bff]">Explore story <ArrowRight size={15}/></span>
     </div>
-  </article>;
+  </Link>;
 }
 
 export default function Home() {
