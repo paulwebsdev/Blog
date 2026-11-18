@@ -9,9 +9,9 @@ const categories = [
 ];
 
 const stories = [
-  { category: "AI & TOOLS", title: "The practical AI toolkit: tools worth knowing and what they actually do", excerpt: "A clear-eyed guide to using artificial intelligence for everyday work, learning and creative projects.", date: "Editor's pick", read: "8 min read", art: "from-[#27215f] via-[#5146bd] to-[#9b8cff]", label: "AI" },
-  { category: "TECHNOLOGY", title: "A smarter digital life starts with the right everyday tools", excerpt: "Simple software and habits that can make your devices work better for you.", date: "Technology", read: "6 min read", art: "from-[#063b58] via-[#087e9b] to-[#7bd5d0]", label: "01" },
-  { category: "BUSINESS", title: "Building useful digital skills for a changing world of work", excerpt: "The skills, platforms and learning paths to explore as work continues to evolve.", date: "Business & careers", read: "7 min read", art: "from-[#174a37] via-[#25856a] to-[#9ad9a9]", label: "02" }
+  { slug: "practical-ai-toolkit", category: "AI & TOOLS", title: "The practical AI toolkit: tools worth knowing and what they actually do", excerpt: "A clear-eyed guide to using artificial intelligence for everyday work, learning and creative projects.", date: "Editor's pick", read: "8 min read", art: "from-[#27215f] via-[#5146bd] to-[#9b8cff]", label: "AI" },
+  { slug: "smarter-everyday-digital-tools", category: "TECHNOLOGY", title: "A smarter digital life starts with the right everyday tools", excerpt: "Simple software and habits that can make your devices work better for you.", date: "Technology", read: "6 min read", art: "from-[#063b58] via-[#087e9b] to-[#7bd5d0]", label: "01" },
+  { slug: "digital-skills-changing-work", category: "BUSINESS", title: "Building useful digital skills for a changing world of work", excerpt: "The skills, platforms and learning paths to explore as work continues to evolve.", date: "Business & careers", read: "7 min read", art: "from-[#174a37] via-[#25856a] to-[#9ad9a9]", label: "02" }
 ];
 
 function Header() {
@@ -37,7 +37,7 @@ function Header() {
 }
 
 function StoryCard({ story, featured = false }: { story: typeof stories[number], featured?: boolean }) {
-  return <article className="group overflow-hidden rounded-2xl border border-slate-100 bg-white transition hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/60">
+  return <Link href={`/articles/${story.slug}`} className="group block overflow-hidden rounded-2xl border border-slate-100 bg-white transition hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/60">
     <div className={`article-art bg-gradient-to-br ${story.art} ${featured ? "min-h-[300px] md:min-h-[390px]" : "min-h-[205px]"}`}>
       <span className="absolute left-5 top-5 rounded-full border border-white/30 bg-white/15 px-3 py-1 text-[10px] font-bold tracking-widest text-white backdrop-blur">{story.category}</span>
       <span className="ml-auto text-6xl font-black tracking-tighter text-white/30 md:text-7xl">{story.label}</span>
