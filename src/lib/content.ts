@@ -13,7 +13,7 @@ function mapRow(row: ArticleRow): Article {
   const category = one(row.category);
   const author = one(row.author);
   const sections = Array.isArray(row.content) ? row.content : [];
-  const words = sections.flatMap((section) => section.paragraphs ?? []).join(" ").split(/\\s+/).filter(Boolean).length;
+  const words = sections.flatMap((section) => section.paragraphs ?? []).join(" ").split(/\s+/).filter(Boolean).length;
   return {
     slug: row.slug, title: row.title, excerpt: row.excerpt, category: category?.name ?? "Technology",
     author: author?.display_name || "PaulNova Editorial",
