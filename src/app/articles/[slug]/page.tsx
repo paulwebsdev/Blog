@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock3 } from "lucide-react";
-import { getPublicArticles, getPublicArticle } from "@/lib/content";
+import { getPublicArticle } from "@/lib/content";
 
 type Props = { params: Promise<{ slug: string }> };
 export const dynamic = "force-dynamic";
