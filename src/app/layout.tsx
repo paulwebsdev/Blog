@@ -3,17 +3,21 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng"),
-  title: {
-    default: "PaulNova — Technology. Intelligence. Opportunities.",
-    template: "%s | PaulNova"
-  },
-  description: "Discover technology, understand AI, explore digital business and find opportunities with PaulNova.",
+  title: { default: "PaulNova — Technology. Intelligence. Opportunities.", template: "%s | PaulNova" },
+  description: "Discover technology, understand artificial intelligence, explore digital business and money, and find education and career opportunities with PaulNova.",
   applicationName: "PaulNova",
+  category: "technology",
   openGraph: {
     type: "website",
     siteName: "PaulNova",
     title: "PaulNova — Technology. Intelligence. Opportunities.",
-    description: "Technology, AI, digital business and opportunities for a changing world."
+    description: "Technology, AI, digital business, education and opportunities for a changing world.",
+    locale: "en_US"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PaulNova — Technology. Intelligence. Opportunities.",
+    description: "Technology, AI, digital business, education and opportunities for a changing world."
   },
   robots: { index: true, follow: true }
 };
