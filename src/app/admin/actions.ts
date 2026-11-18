@@ -90,3 +90,31 @@ export async function deleteArticle(formData: FormData) {
   if (error) throw new Error(error.message);
   redirect("/admin");
 }
+
+async function requireAdmin() {
+  const { supabase, user } = await requireEditor();
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  if (profile?.role !== "admin") redirect("/admin?error=admin-required");
+  return { supabase };
+}
+
+export async function createCategory(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const name = String(formData.get("name") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const slug = safeSlug(String(formData.get("slug") ?? name));
+  if (name.length < 2 || !slug) throw new Error("Enter a category name and valid slug.");
+  const { error } = await supabase.from("categories").insert({ name, slug, description: description || null });
+  if (error) throw new Error(error.message);
+  redirect("/admin");
+}
+
+export async function toggleCategory(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const isActive = String(formData.get("is_active") ?? "") === "true";
+  if (!id) throw new Error("Category ID is missing.");
+  const { error } = await supabase.from("categories").update({ is_active: !isActive }).eq("id", id);
+  if (error) throw new Error(error.message);
+  redirect("/admin");
+}
