@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BrainCircuit, BriefcaseBusiness, Cpu, GraduationCap, Menu, Search, Sparkles, Zap } from "lucide-react";
 import { articles } from "@/lib/articles";
+import { getPublicArticles } from "@/lib/content";
 
 const categories = [
   { name: "Technology", slug: "technology", icon: Cpu, detail: "Apps, gadgets, software and useful guides", color: "bg-blue-50 text-blue-700" },
@@ -52,7 +53,10 @@ function StoryCard({ article, featured = false }: { article: typeof articles[num
   </Link>;
 }
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const articles = await getPublicArticles();
   const [featured, ...latest] = articles;
   return <main>
     <Header/>
