@@ -29,7 +29,7 @@ export async function getPublicArticles(): Promise<Article[]> {
     const supabase = await createClient();
     const { data, error } = await supabase.from("articles")
       .select("id,slug,title,excerpt,content,image_url,image_alt,seo_title,seo_description,published_at,created_at,category:categories(name),author:profiles(display_name)")
-      .eq("status", "published").not("published_at", "is", null).lte("published_at", new Date().toISOString())
+      .in("status", ["published", "scheduled"]).not("published_at", "is", null).lte("published_at", new Date().toISOString())
       .order("published_at", { ascending: false });
     if (error) throw error;
     return ((data ?? []) as unknown as ArticleRow[]).map(mapRow);
