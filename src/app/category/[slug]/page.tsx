@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { articles } from "@/lib/articles";
+import { getPublicArticles } from "@/lib/content";
 
 const categories = [
   { slug: "technology", name: "Technology", description: "Clear guides to useful apps, software, devices and the digital tools shaping everyday life." },
@@ -24,10 +25,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const category = categories.find((item) => item.slug === slug);
   return category ? { title: category.name, description: category.description, alternates: { canonical: `/category/${slug}` } } : { title: "Category not found" };
 }
+export const dynamic = "force-dynamic";
 export default async function CategoryPage({ params }: Props) {
   const { slug } = await params;
   const category = categories.find((item) => item.slug === slug);
   if (!category) notFound();
+  const articles = await getPublicArticles();
   const items = articles.filter((article) => matches[slug]?.includes(article.category));
   return <main className="min-h-screen bg-[#f7f8fc]">
     <header className="border-b border-slate-100 bg-white"><div className="container flex h-[76px] items-center justify-between"><Link href="/" className="text-2xl font-black tracking-tight text-[#101828]">Paul<span className="text-[#635bff]">Nova</span></Link><Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-[#635bff]"><ArrowLeft size={16}/> Home</Link></div></header>
