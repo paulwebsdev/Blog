@@ -19,4 +19,9 @@ PaulNova is a global digital publication covering technology, artificial intelli
 Connect this repository to Vercel. Configure the production domain when it is registered and point DNS to Vercel.
 
 ## Current status
-Initial responsive publication frontend. Database-backed publishing and the private admin dashboard are planned as the next development phase.
+- Responsive publication homepage
+- Initial editorial category layout
+- Dynamic article pages with per-article SEO metadata and canonical URLs
+- XML sitemap includes the current article routes
+- Article model supports public external image URLs (for example, Blogger-hosted images)
+- Database-backed publishing and the private admin dashboard are the next phase
