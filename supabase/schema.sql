@@ -69,10 +69,10 @@ create policy "Admins can update categories" on public.categories for update to 
 using ((select private.is_paulnova_admin())) with check ((select private.is_paulnova_admin()));
 create policy "Admins can delete categories" on public.categories for delete to authenticated using ((select private.is_paulnova_admin()));
 
-create policy "Public can read published articles" on public.articles for select to anon
-using (status = 'published' and published_at is not null and published_at <= now());
+create policy "Public can read live articles" on public.articles for select to anon
+using (status in ('published','scheduled') and published_at is not null and published_at <= now());
 create policy "Signed-in editors can read articles" on public.articles for select to authenticated
-using ((status = 'published' and published_at is not null and published_at <= now()) or
+using ((status in ('published','scheduled') and published_at is not null and published_at <= now()) or
 exists (select 1 from public.profiles p where p.id = (select auth.uid()) and p.role in ('admin','editor')));
 create policy "Editors can insert articles" on public.articles for insert to authenticated
 with check (exists (select 1 from public.profiles p where p.id = (select auth.uid()) and p.role in ('admin','editor')));
