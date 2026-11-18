@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock3 } from "lucide-react";
-import { articles, getArticle } from "@/lib/articles";
+import { getPublicArticles, getPublicArticle } from "@/lib/content";
 
 type Props = { params: Promise<{ slug: string }> };
-export function generateStaticParams() { return articles.map((article) => ({ slug: article.slug })); }
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const article = getArticle(slug);
+  const article = await getPublicArticle(slug);
   if (!article) return { title: "Article not found" };
   return {
     title: article.seoTitle,
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
-  const article = getArticle(slug);
+  const article = await getPublicArticle(slug);
   if (!article) notFound();
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng";
   const structuredData = {
