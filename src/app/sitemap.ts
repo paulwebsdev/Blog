@@ -1,9 +1,11 @@
 import type { MetadataRoute } from "next";
-import { articles } from "@/lib/articles";
+import { getPublicArticles } from "@/lib/content";
 
+export const dynamic = "force-dynamic";
 const categorySlugs = ["technology", "artificial-intelligence", "business-money", "education-careers"];
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng";
+  const articles = await getPublicArticles();
   return [
     { url: base, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
     ...categorySlugs.map((slug) => ({ url: `${base}/category/${slug}`, changeFrequency: "weekly" as const, priority: 0.8 })),
