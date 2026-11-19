@@ -58,8 +58,12 @@ export default async function ArticlePage({ params }: Props) {
     description: article.seoDescription,
     datePublished: new Date(article.publishedAt).toISOString(),
     dateModified: new Date(article.updatedAt || article.publishedAt).toISOString(),
-    author: { "@type": "Organization", name: article.author },
+    author: article.authorSlug
+      ? { "@type": "Person", name: article.author, url: `${base}/authors/${article.authorSlug}` }
+      : { "@type": "Organization", name: article.author },
     publisher: { "@type": "Organization", name: "PaulNova", url: base },
+    inLanguage: "en",
+    isAccessibleForFree: true,
     mainEntityOfPage: { "@type": "WebPage", "@id": `${base}/articles/${article.slug}` },
     image: article.imageUrl ? [article.imageUrl] : undefined
   };
