@@ -245,16 +245,16 @@ export async function saveSiteSettings(formData: FormData) {
     try { parsedLogo = new URL(logoUrl); } catch { throw new Error("Logo must be a valid public image URL."); }
     if (parsedLogo.protocol !== "https:") throw new Error("Logo image URL must use HTTPS.");
   }
-  const logoUrl = String(formData.get("logo_url") ?? "").trim();
-  if (logoUrl) {
-    let parsedLogo: URL;
-    try { parsedLogo = new URL(logoUrl); } catch { throw new Error("Logo must be a valid public image URL."); }
-    if (parsedLogo.protocol !== "https:") throw new Error("Logo image URL must use HTTPS.");
+  const faviconUrl = String(formData.get("favicon_url") ?? "").trim();
+  if (faviconUrl) {
+    let parsedFavicon: URL;
+    try { parsedFavicon = new URL(faviconUrl); } catch { throw new Error("Favicon must be a valid public image URL."); }
+    if (parsedFavicon.protocol !== "https:") throw new Error("Favicon image URL must use HTTPS.");
   }
   const googleCode = String(formData.get("google_site_verification") ?? "").trim().slice(0,200);
   if (googleCode && !/^[A-Za-z0-9_-]+$/.test(googleCode)) throw new Error("Google verification code should contain only letters, numbers, underscores or hyphens.");
   const { error } = await supabase.from("site_settings").upsert({
-    id: 1, social_links: socialLinks, logo_url: logoUrl || null, google_site_verification: googleCode || null, updated_at: new Date().toISOString()
+    id: 1, social_links: socialLinks, logo_url: logoUrl || null, favicon_url: faviconUrl || null, google_site_verification: googleCode || null, updated_at: new Date().toISOString()
   }, { onConflict: "id" });
   if (error) throw new Error("Could not save site settings: " + error.message);
   redirect("/admin/site-settings?saved=1");
