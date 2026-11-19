@@ -63,7 +63,10 @@ export default async function AnalyticsStudio({ searchParams }: Props) {
     const articleBookmarks = articleEvents.filter((r) => r.event_type === "bookmark_add").length;
     const articleOutbound = articleEvents.filter((r) => r.event_type === "outbound_click").length;
     const articleReading = articleEvents.filter((r) => r.event_type === "reading_time" && (r.duration_seconds || 0) > 0);
-    const avgReading = articleReading.length ? Math.round(articleReading.reduce((sum, r) => sum + (r.duration_seconds || 0), 0) / articleReading.length) : 0;
+    const articleReadingBySession = new Map<string, number>();
+    articleReading.forEach((r) => articleReadingBySession.set(r.session_id, (articleReadingBySession.get(r.session_id) || 0) + (r.duration_seconds || 0)));
+    const articleReadingTotals = [...articleReadingBySession.values()];
+    const avgReading = articleReadingTotals.length ? Math.round(articleReadingTotals.reduce((sum, seconds) => sum + seconds, 0) / articleReadingTotals.length) : 0;
     const sourceCounts = new Map<string, number>();
     views.forEach((r) => sourceCounts.set(r.traffic_source || "Other", (sourceCounts.get(r.traffic_source || "Other") || 0) + 1));
     const topSource = [...sourceCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
@@ -81,7 +84,13 @@ export default async function AnalyticsStudio({ searchParams }: Props) {
   const outboundClicks = engagementRows.filter((r) => r.event_type === "outbound_click");
   const bookmarkAdds = engagementRows.filter((r) => r.event_type === "bookmark_add");
   const readingRows = engagementRows.filter((r) => r.event_type === "reading_time" && (r.duration_seconds || 0) > 0);
-  const averageReadingSeconds = readingRows.length ? Math.round(readingRows.reduce((sum, r) => sum + (r.duration_seconds || 0), 0) / readingRows.length) : 0;
+  const readingBySession = new Map<string, number>();
+  readingRows.forEach((r) => {
+    const key = (r.article_slug || r.page_path) + ":" + r.session_id;
+    readingBySession.set(key, (readingBySession.get(key) || 0) + (r.duration_seconds || 0));
+  });
+  const readingSessionTotals = [...readingBySession.values()];
+  const averageReadingSeconds = readingSessionTotals.length ? Math.round(readingSessionTotals.reduce((sum, seconds) => sum + seconds, 0) / readingSessionTotals.length) : 0;
   const deepReads = engagementRows.filter((r) => r.event_type === "scroll_depth" && r.event_value === "90").length;
 
   return <main className="min-h-screen bg-[#f7f8fc]">
