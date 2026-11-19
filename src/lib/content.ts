@@ -9,6 +9,8 @@ type ArticleRow = {
   category: { name: string } | { name: string }[] | null;
   author: { display_name: string | null; author_slug: string | null } | { display_name: string | null; author_slug: string | null }[] | null;
   article_tags?: { tag: TagRow | TagRow[] | null }[];
+  sources?: { title: string; url: string }[];
+  correction_note?: string | null;
 };
 
 function one<T>(value: T | T[] | null): T | null { return Array.isArray(value) ? value[0] ?? null : value; }
@@ -25,11 +27,12 @@ function mapRow(row: ArticleRow): Article {
     publishedAt: row.published_at ?? row.created_at, updatedAt: row.updated_at,
     readTime: `${Math.max(1, Math.ceil(words / 220))} min read`,
     imageUrl: row.image_url ?? undefined, imageAlt: row.image_alt ?? undefined,
+    sources: Array.isArray(row.sources) ? row.sources : [], correctionNote: row.correction_note ?? undefined,
     seoTitle: row.seo_title || row.title, seoDescription: row.seo_description || row.excerpt, sections
   };
 }
 
-const articleSelect = "id,slug,title,excerpt,content,image_url,image_alt,seo_title,seo_description,published_at,created_at,updated_at,view_count,category:categories(name),author:profiles(display_name,author_slug),article_tags(tag:tags(name,slug))";
+const articleSelect = "id,slug,title,excerpt,content,image_url,image_alt,seo_title,seo_description,published_at,created_at,updated_at,view_count,sources,correction_note,category:categories(name),author:profiles(display_name,author_slug),article_tags(tag:tags(name,slug))";
 function publicQuery(supabase: Awaited<ReturnType<typeof createClient>>) {
   return supabase.from("articles").select(articleSelect)
     .in("status", ["published", "scheduled"]).not("published_at", "is", null).lte("published_at", new Date().toISOString());
