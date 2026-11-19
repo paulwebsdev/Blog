@@ -3,7 +3,7 @@ import { getPublicArticles } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
 const categorySlugs = ["technology", "artificial-intelligence", "business-money", "education-careers"];
-const staticPages = ["about", "contact", "privacy", "terms", "editorial-policy", "advertise", "faq", "write-for-us", "disclaimer"];
+const staticPages = ["about", "contact", "privacy", "terms", "editorial-policy", "advertise", "faq", "write-for-us", "disclaimer", "newsletter"];
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng";
   const articles = await getPublicArticles();
