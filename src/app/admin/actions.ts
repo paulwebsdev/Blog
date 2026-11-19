@@ -202,6 +202,42 @@ export async function saveAuthorProfile(formData: FormData) {
 
 
 
+
+export async function saveSiteSettings(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const platforms = ["facebook","instagram","linkedin","x","youtube","tiktok","telegram","threads","whatsapp"] as const;
+  const allowedHosts: Record<string,string[]> = {
+    facebook:["facebook.com","www.facebook.com","m.facebook.com"],
+    instagram:["instagram.com","www.instagram.com"],
+    linkedin:["linkedin.com","www.linkedin.com"],
+    x:["x.com","www.x.com","twitter.com","www.twitter.com"],
+    youtube:["youtube.com","www.youtube.com","youtu.be"],
+    tiktok:["tiktok.com","www.tiktok.com"],
+    telegram:["t.me","telegram.me","www.telegram.me"],
+    threads:["threads.net","www.threads.net"],
+    whatsapp:["wa.me","api.whatsapp.com","www.whatsapp.com"]
+  };
+  const socialLinks: Record<string,string> = {};
+  for (const platform of platforms) {
+    const value = String(formData.get(platform) ?? "").trim();
+    if (!value) continue;
+    let parsed: URL;
+    try { parsed = new URL(value); } catch { throw new Error("Enter a valid full URL for " + platform + "."); }
+    if (parsed.protocol !== "https:" || !allowedHosts[platform].includes(parsed.hostname.toLowerCase())) {
+      throw new Error("Use an official HTTPS " + platform + " profile URL.");
+    }
+    socialLinks[platform] = parsed.toString();
+  }
+  const googleCode = String(formData.get("google_site_verification") ?? "").trim().slice(0,200);
+  if (googleCode && !/^[A-Za-z0-9_-]+$/.test(googleCode)) throw new Error("Google verification code should contain only letters, numbers, underscores or hyphens.");
+  const { error } = await supabase.from("site_settings").upsert({
+    id: 1, social_links: socialLinks, google_site_verification: googleCode || null, updated_at: new Date().toISOString()
+  }, { onConflict: "id" });
+  if (error) throw new Error("Could not save site settings: " + error.message);
+  redirect("/admin/site-settings?saved=1");
+}
+
+
 async function ensurePaulNovaBrevoList(): Promise<number> {
   const configured = Number(process.env.BREVO_LIST_ID);
   if (Number.isInteger(configured) && configured > 0) return configured;
