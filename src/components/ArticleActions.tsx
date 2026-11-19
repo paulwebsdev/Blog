@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Bookmark, Check, Copy, Share2 } from "lucide-react";
+import { Bookmark, Check, Share2 } from "lucide-react";
 
 const KEY = "paulnova:bookmarks";
 function readBookmarks(): string[] {
@@ -9,7 +9,7 @@ function readBookmarks(): string[] {
     return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
   } catch { return []; }
 }
-export function BookmarkButton({ slug, title }: { slug: string; title: string }) {
+export function BookmarkButton({ slug }: { slug: string }) {
   const [saved, setSaved] = useState(false);
   useEffect(() => {
     const sync = () => setSaved(readBookmarks().includes(slug));
