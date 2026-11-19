@@ -41,8 +41,9 @@ export default async function AnalyticsStudio({ searchParams }: Props) {
   const sources = aggregate((r) => r.traffic_source);
   const pages = aggregate((r) => r.page_path);
   const articles = aggregate((r) => r.article_slug || "");
-  const days = Array.from({ length: selected.days === 1 ? 1 : Math.min(selected.days, 14) }, (_, i, arr) => {
-    const date = new Date(); date.setHours(0, 0, 0, 0); date.setDate(date.getDate() - (arr.length - 1 - i));
+  const dayCount = selected.days === 1 ? 1 : Math.min(selected.days, 14);
+  const days = Array.from({ length: dayCount }, (_, i) => {
+    const date = new Date(); date.setHours(0, 0, 0, 0); date.setDate(date.getDate() - (dayCount - 1 - i));
     const key = date.toISOString().slice(0, 10);
     return { key, label: date.toLocaleDateString("en", { month: "short", day: "numeric" }), count: rows.filter((r) => r.created_at.slice(0, 10) === key).length };
   });
