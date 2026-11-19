@@ -1,0 +1,8 @@
+import type { Metadata } from "next";
+import InfoPage from "@/components/InfoPage";
+export const metadata: Metadata = { title: "Partnerships & Advertising", description: "Explore potential advertising, sponsorship and partnership enquiries with PaulNova." };
+export default function AdvertisePage() { return <InfoPage eyebrow="Work with us" title="Partnerships & advertising" intro="PaulNova is building a global readership around technology, artificial intelligence, digital business, education and career opportunities. We welcome thoughtful conversations with organisations whose work is relevant to our audience." sections={[
+{heading:"Potential collaborations",bullets:["Clearly labelled sponsored articles or educational features.","Relevant product, platform and service announcements.","Campaigns, research projects and event partnerships.","Expert interviews and subject-matter contributions."]},
+{heading:"Our standards",paragraphs:["Partnerships must be relevant to our coverage and useful to readers. Sponsored material should be clearly disclosed. Commercial relationships do not guarantee positive editorial coverage, and we reserve the right to decline proposals that do not meet our standards."]},
+{heading:"Start a conversation",paragraphs:["Tell us about your organisation, the idea, your goals and any relevant timeline. Email contact.paulnova@gmail.com with the subject line “Partnership enquiry”. Please note that advertising inventory, audience metrics and packages are not being represented as currently available or guaranteed."]}
+]}/> }
