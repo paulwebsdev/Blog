@@ -216,20 +216,6 @@ async function ensurePaulNovaBrevoList(): Promise<number> {
   return created.id;
 }
 
-async function waitForBrevoImport(processId: number) {
-  for (let attempt = 0; attempt < 25; attempt++) {
-    const process = await brevoRequest<{ status?: string }>(`/processes/${processId}`);
-    const status = String(process.status ?? "").toLowerCase();
-    if (status === "completed") return;
-    if (["failed", "error", "cancelled"].includes(status)) {
-      throw new Error("Brevo could not finish importing the subscriber list.");
-    }
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-  }
-  throw new Error("Brevo is still importing subscribers. Wait a moment, then try sending again.");
-}
-
-
 export async function sendNewsletterTest(formData: FormData) {
   const { supabase, user } = await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
@@ -267,111 +253,7 @@ export async function sendNewsletterTest(formData: FormData) {
   redirect("/admin/newsletter?tested=1");
 }
 
-export async function sendNewsletterCampaign(formData: FormData) {
-  const { supabase } = await requireAdmin();
-  const id = String(formData.get("id") ?? "").trim();
-  if (!/^[0-9a-f-]{36}$/i.test(id)) throw new Error("Invalid campaign ID.");
-
-  const apiKey = process.env.BREVO_API_KEY;
-  const senderEmail = String(process.env.BREVO_SENDER_EMAIL ?? "").trim();
-  const senderName = String(process.env.BREVO_SENDER_NAME ?? "PaulNova").trim();
-  const replyTo = String(process.env.BREVO_REPLY_TO ?? senderEmail).trim();
-  if (!apiKey) throw new Error("Brevo API key is not configured on the server.");
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(senderEmail)) throw new Error("Set BREVO_SENDER_EMAIL to a verified sender address in Brevo.");
-
-  const listId = await ensurePaulNovaBrevoList();
-  const { data: campaign, error: campaignError } = await supabase
-    .from("newsletter_campaigns")
-    .select("id,subject,preview_text,content_html,status,brevo_campaign_id")
-    .eq("id", id)
-    .maybeSingle();
-  if (campaignError || !campaign) throw new Error("Newsletter campaign not found.");
-  if (campaign.status !== "draft") throw new Error("Only newsletter drafts can be sent.");
-
-  const { count: subscriberCount, error: countError } = await supabase
-    .from("subscribers")
-    .select("id", { count: "exact", head: true })
-    .eq("status", "active")
-    .not("consent_at", "is", null);
-  if (countError) throw new Error("Could not verify the consented subscriber list.");
-  if (!subscriberCount) throw new Error("There are no active subscribers with recorded consent to receive this newsletter.");
-  if (subscriberCount > 10000) throw new Error("This first release supports up to 10,000 subscribers per campaign. Please contact support before sending a larger list.");
-
-  const { data: claimed } = await supabase
-    .from("newsletter_campaigns")
-    .update({ status: "sending", updated_at: new Date().toISOString() })
-    .eq("id", id)
-    .eq("status", "draft")
-    .select("id")
-    .maybeSingle();
-  if (!claimed) throw new Error("This campaign is already being processed or has already been sent.");
-
-  let brevoAccepted = false;
-  try {
-    for (let offset = 0; offset < subscriberCount; offset += 1000) {
-      const { data: subscribers, error: subscriberError } = await supabase
-        .from("subscribers")
-        .select("email")
-        .eq("status", "active")
-        .not("consent_at", "is", null)
-        .order("created_at", { ascending: true })
-        .range(offset, Math.min(offset + 999, subscriberCount - 1));
-      if (subscriberError) throw new Error("Could not load the consented subscriber list.");
-      const emails = (subscribers ?? []).map((row) => row.email).filter(Boolean);
-      if (!emails.length) continue;
-      const imported = await brevoRequest<{ processId?: number }>("/contacts/import", {
-        method: "POST",
-        body: JSON.stringify({
-          jsonBody: emails.map((email) => ({ email })),
-          listIds: [listId],
-          updateExistingContacts: true,
-          disableNotification: true
-        })
-      });
-      if (!imported.processId) throw new Error("Brevo did not return a subscriber import process ID.");
-      await waitForBrevoImport(imported.processId);
-    }
-
-    let brevoCampaignId = campaign.brevo_campaign_id as number | null;
-    if (!brevoCampaignId) {
-      const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng";
-      const siteUrl = rawSiteUrl.endsWith("/") ? rawSiteUrl.slice(0, -1) : rawSiteUrl;
-      const htmlContent = `<!doctype html><html><body style="margin:0;background:#f5f6fb;font-family:Arial,sans-serif;color:#172033"><div style="max-width:640px;margin:0 auto;padding:32px 16px"><div style="background:#fff;border-radius:18px;padding:32px"><p style="font-size:13px;font-weight:700;letter-spacing:2px;color:#635bff">PAULNOVA</p><h1 style="font-size:26px;line-height:1.25;margin:18px 0;color:#172033">${escapeHtml(campaign.subject)}</h1>${campaign.content_html}<p style="margin-top:32px;padding-top:20px;border-top:1px solid #e5e7eb;font-size:12px;line-height:1.7;color:#64748b">Technology. Intelligence. Opportunities.<br/><a href="${siteUrl}" style="color:#635bff">Visit PaulNova</a> · <a href="{{ unsubscribe }}" style="color:#64748b">Unsubscribe</a></p></div></div></body></html>`;
-      const created = await brevoRequest<{ id: number }>("/emailCampaigns", {
-        method: "POST",
-        body: JSON.stringify({
-          name: `PaulNova — ${campaign.subject.slice(0, 100)} — ${new Date().toISOString()}`,
-          subject: campaign.subject,
-          previewText: campaign.preview_text || undefined,
-          sender: { name: senderName, email: senderEmail },
-          replyTo,
-          recipients: { listIds: [listId] },
-          htmlContent,
-          tag: "PaulNova"
-        })
-      });
-      if (!created.id) throw new Error("Brevo created no campaign ID.");
-      brevoCampaignId = created.id;
-      const { error: storeError } = await supabase
-        .from("newsletter_campaigns")
-        .update({ brevo_campaign_id: brevoCampaignId, updated_at: new Date().toISOString() })
-        .eq("id", id);
-      if (storeError) throw new Error("Brevo campaign was created, but its ID could not be saved. Contact an administrator before retrying.");
-    }
-
-    await brevoRequest(`/emailCampaigns/${brevoCampaignId}/sendNow`, { method: "POST" });
-    brevoAccepted = true;
-    const { error: sentError } = await supabase
-      .from("newsletter_campaigns")
-      .update({ status: "sent", sent_at: new Date().toISOString(), updated_at: new Date().toISOString() })
-      .eq("id", id)
-      .eq("status", "sending");
-    if (sentError) throw new Error("Brevo accepted the campaign, but PaulNova could not update its local status. Check Brevo before attempting another send.");
-  } catch (error) {
-    if (!brevoAccepted) {
-      await supabase.from("newsletter_campaigns").update({ status: "draft", updated_at: new Date().toISOString() }).eq("id", id).eq("status", "sending");
-    }
-    throw error;
-  }
-  redirect("/admin/newsletter?sent=1");
+export async function sendNewsletterCampaign(_formData: FormData) {
+  await requireAdmin();
+  throw new Error("Bulk newsletter sending is temporarily disabled until Brevo unsubscribe suppression and consent synchronization are fully verified.");
 }
