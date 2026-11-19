@@ -19,14 +19,18 @@ npm run dev
 Set these variables in `.env.local` and in the Vercel project:
 - `NEXT_PUBLIC_SITE_URL`
 - `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`\n- Optional: `NEXT_PUBLIC_GA_ID` (Google Analytics measurement ID; analytics loads only after visitor consent)\n- Optional: `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` (Google Search Console verification token)
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- Optional: `NEXT_PUBLIC_GA_ID` (Google Analytics measurement ID; analytics loads only after visitor consent)
+- Optional: `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` (Google Search Console verification token)
 
 The publishable key is intended for public client use. Never add a Supabase secret or service-role key to a `NEXT_PUBLIC_` variable or commit secrets to Git.
 
 ## Public site
 - Responsive homepage and category pages
 - Article pages and search read published content from Supabase
-- Canonical metadata, Open Graph/Twitter metadata, Article JSON-LD, sitemap and robots.txt\n- Related stories, share controls, local-device bookmarks and paginated search/category archives\n- Optional Google Analytics gated behind explicit visitor consent; optional Google Search Console verification
+- Canonical metadata, Open Graph/Twitter metadata, Article JSON-LD, sitemap and robots.txt
+- Related stories, share controls, local-device bookmarks and paginated search/category archives
+- Optional Google Analytics gated behind explicit visitor consent; optional Google Search Console verification
 - When Supabase is not configured, starter articles are used as a development fallback
 
 ## Editorial studio
@@ -34,7 +38,8 @@ The publishable key is intended for public client use. Never add a Supabase secr
 - Protected dashboard, article create/edit/delete, draft/publish/schedule status
 - External image URL input with preview and required alt text
 - SEO title and description fields
-- Subscriber search, status and consent review for administrators\n- Article preview, newsletter draft editing and campaign preview
+- Subscriber search, status and consent review for administrators
+- Article preview, newsletter draft editing and campaign preview
 
 ## First administrator setup
 1. In Supabase Dashboard → Authentication → Users, create the first user with the administrator's email and a strong password.
