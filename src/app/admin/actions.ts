@@ -245,6 +245,12 @@ export async function saveSiteSettings(formData: FormData) {
     try { parsedLogo = new URL(logoUrl); } catch { throw new Error("Logo must be a valid public image URL."); }
     if (parsedLogo.protocol !== "https:") throw new Error("Logo image URL must use HTTPS.");
   }
+  const logoUrl = String(formData.get("logo_url") ?? "").trim();
+  if (logoUrl) {
+    let parsedLogo: URL;
+    try { parsedLogo = new URL(logoUrl); } catch { throw new Error("Logo must be a valid public image URL."); }
+    if (parsedLogo.protocol !== "https:") throw new Error("Logo image URL must use HTTPS.");
+  }
   const googleCode = String(formData.get("google_site_verification") ?? "").trim().slice(0,200);
   if (googleCode && !/^[A-Za-z0-9_-]+$/.test(googleCode)) throw new Error("Google verification code should contain only letters, numbers, underscores or hyphens.");
   const { error } = await supabase.from("site_settings").upsert({
