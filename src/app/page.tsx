@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BrainCircuit, BriefcaseBusiness, Cpu, GraduationCap, Menu, Search, Sparkles, Zap } from "lucide-react";
-import { articles, type Article } from "@/lib/articles";
+import type { Article } from "@/lib/articles";
 import { getPublicArticles } from "@/lib/content";
 import NewsletterForm from "@/app/newsletter/NewsletterForm";
 import AdSlot from "@/components/AdSlot";
@@ -60,7 +60,7 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const articles = await getPublicArticles();
   const [featured, ...latest] = articles;
-  const mostRead = [...articles].sort((a, b) => (b.views ?? 0) - (a.views ?? 0)).slice(0, 3);
+  const mostRead = [...articles].filter((article) => (article.views ?? 0) > 0).sort((a, b) => (b.views ?? 0) - (a.views ?? 0)).slice(0, 3);
   return <main>
     <Header/>
     <section className="relative overflow-hidden bg-[#f7f8fc]">
