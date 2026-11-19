@@ -47,6 +47,7 @@ export default async function AdminDashboard() {
               <DashboardLink href="/admin/articles/new" title="Create a new article" description="Write, edit and schedule stories"/>
               {profile.role==="admin"&&<DashboardLink href="/admin/newsletter" title="Newsletter studio" description="Prepare newsletter drafts and previews"/>}
               {profile.role==="admin"&&<DashboardLink href="/admin/subscribers" title="Subscribers" description="Review subscriber status and consent"/>}
+              {profile.role==="admin"&&<DashboardLink href="/admin/analytics" title="Analytics studio" description="Visitors, article views, traffic sources and popular pages"/>}
               {profile.role==="admin"&&<DashboardLink href="/admin/monetization" title="Monetization studio" description="Ads, advertisers, sponsors, affiliates and revenue"/>}
             </div>
             <div className="mt-4 rounded-xl border border-slate-100 p-3">
