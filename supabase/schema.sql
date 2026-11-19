@@ -164,3 +164,35 @@ insert into public.site_settings (id) values (1) on conflict (id) do nothing;
 -- Editorial source citations and correction notices for existing installations.
 alter table public.articles add column if not exists sources jsonb not null default '[]'::jsonb;
 alter table public.articles add column if not exists correction_note text;
+
+-- Author profile metadata and safely scoped profile update RPC.
+alter table public.profiles add column if not exists author_slug text;
+alter table public.profiles add column if not exists bio text;
+alter table public.profiles add column if not exists avatar_url text;
+alter table public.profiles add column if not exists website_url text;
+create or replace function private.update_author_profile(
+  p_display_name text, p_author_slug text, p_bio text, p_avatar_url text, p_website_url text
+) returns void language plpgsql security definer set search_path = ''
+as $function$
+begin
+  if (select auth.uid()) is null then raise exception 'Authentication required'; end if;
+  update public.profiles
+  set display_name = left(trim(p_display_name), 100),
+      author_slug = p_author_slug,
+      bio = nullif(left(trim(coalesce(p_bio, '')), 1000), ''),
+      avatar_url = nullif(trim(coalesce(p_avatar_url, '')), ''),
+      website_url = nullif(trim(coalesce(p_website_url, '')), '')
+  where id = (select auth.uid()) and role in ('admin', 'editor');
+  if not found then raise exception 'Editorial profile not found or not authorised'; end if;
+end;
+$function$;
+revoke all on function private.update_author_profile(text,text,text,text,text) from public, anon;
+grant execute on function private.update_author_profile(text,text,text,text,text) to authenticated;
+create or replace function public.update_author_profile(
+  p_display_name text, p_author_slug text, p_bio text, p_avatar_url text, p_website_url text
+) returns void language sql security invoker set search_path = ''
+as $function$
+  select private.update_author_profile($1,$2,$3,$4,$5);
+$function$;
+revoke all on function public.update_author_profile(text,text,text,text,text) from public, anon;
+grant execute on function public.update_author_profile(text,text,text,text,text) to authenticated;
