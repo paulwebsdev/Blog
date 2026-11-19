@@ -1,0 +1,11 @@
+import type { Metadata } from "next";
+import InfoPage from "@/components/InfoPage";
+export const metadata: Metadata = { title: "Editorial Policy", description: "How PaulNova approaches research, writing, accuracy, corrections, independence and responsible technology coverage." };
+export default function EditorialPolicyPage() { return <InfoPage eyebrow="How we work" title="Editorial policy" intro="Trust is built through careful work. This policy describes the standards PaulNova aims to follow when researching, preparing and updating its content." sections={[
+{heading:"Research and verification",paragraphs:["We aim to use reliable primary sources, official documentation, direct statements, research papers and credible reporting. Important claims should be checked against the strongest available evidence, and developing stories should be presented with appropriate context."]},
+{heading:"Clarity and context",paragraphs:["We explain technical ideas in accessible language without hiding important caveats. We distinguish established facts from analysis, forecasts, opinion and speculation. We aim to explain material limitations, risks and uncertainties alongside potential benefits."]},
+{heading:"Corrections and updates",paragraphs:["If we discover a meaningful error, we aim to correct it promptly and clarify the change where appropriate. Readers can report possible errors or request clarification by emailing contact.paulnova@gmail.com with the article link and relevant details."]},
+{heading:"Independence and conflicts",paragraphs:["Editorial decisions should be guided by relevance, accuracy and reader value. Any future sponsored, affiliate or partner content should be clearly identified so readers can distinguish it from independent editorial coverage."]},
+{heading:"Artificial intelligence",paragraphs:["AI tools may be used to support research, editing or production. They do not replace editorial responsibility. Content should be reviewed by a human for accuracy, relevance, originality and potential harm before publication."]},
+{heading:"Respect and responsibility",paragraphs:["We aim to avoid misleading headlines, unsupported claims, plagiarism and unnecessary sensationalism. We respect privacy, attribute sources and consider the real-world effects of publishing sensitive information."]}
+]}/> }
