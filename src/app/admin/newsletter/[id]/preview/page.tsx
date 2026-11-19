@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
+export const metadata = { robots: { index: false, follow: false } };
 type Props = { params: Promise<{ id: string }> };
 function plain(html: string) { return html.replaceAll("<p>", "").replaceAll("</p>", "\n\n").replaceAll("<br>", "\n").replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&quot;", '"').replaceAll("&#39;", "'"); }
 export default async function NewsletterPreview({ params }: Props) {
