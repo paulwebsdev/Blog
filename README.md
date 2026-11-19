@@ -16,7 +16,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Set these variables in `.env.local` and in your Netlify site environment:
+Set these variables in `.env.local` and in your Render service environment:
 - `NEXT_PUBLIC_SITE_URL`
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
@@ -52,7 +52,7 @@ The publishable key is intended for public client use. Never add a Supabase secr
    insert into public.profiles (id, display_name, role)
    values ('AUTH_USER_UUID', 'PaulNova Admin', 'admin');
    ```
-4. Add the required environment variables above to Netlify (Builds and Functions scopes), then trigger a deploy.
+4. Add the required environment variables above to the Render Web Service, then deploy.
 5. Visit `/admin/login` and sign in. Do not enable public sign-up.
 
 New profiles default to `pending`, which grants no editorial permissions. Promote additional editors only by assigning the `editor` role from a trusted administrator workflow or Supabase SQL Editor.
@@ -61,7 +61,7 @@ New profiles default to `pending`, which grants no editorial permissions. Promot
 Paste a direct, publicly accessible HTTPS image URL in the editor (Blogger image URLs are supported). The image is rendered by its source URL and does not consume Supabase Storage.
 
 ## Deployment
-Connect this repository to Netlify. The included `netlify.toml` uses `npm run build` and `.next`; Netlify's maintained Next.js adapter is detected automatically. Set the required environment variables in the Netlify UI with both Builds and Functions scopes, then deploy. Do not add a static SPA catch-all redirect: this app uses Next.js server rendering and route handlers. Configure `paulnova.name.ng` only after the first successful deploy, following the DNS values shown in Netlify. Google Search Console ownership verification and sitemap submission are external owner steps. Google Search Console ownership verification and sitemap submission are external owner steps. Set `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` after adding the site property. Set `NEXT_PUBLIC_GA_ID` only after creating a Google Analytics web stream; the consent banner controls whether its script loads. Bookmarks are stored locally in the visitor’s browser and are not synced between devices.
+Deploy this app to Render as a **Node.js Web Service**, not a Static Site, because it uses Next.js server rendering and route handlers. The included `render.yaml` defines the service with `npm install && npm run build` and `npm start`. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in the Render service environment before deploying. Keep secrets out of Git. Configure `paulnova.name.ng` only after the first successful deploy, using the exact DNS records shown in the Render Dashboard. Render provisions HTTPS after the domain is verified. Google Search Console ownership verification and sitemap submission are external owner steps. Google Search Console ownership verification and sitemap submission are external owner steps. Set `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` after adding the site property. Set `NEXT_PUBLIC_GA_ID` only after creating a Google Analytics web stream; the consent banner controls whether its script loads. Bookmarks are stored locally in the visitor’s browser and are not synced between devices.
 
 ## Monetization setup
 - Open `/admin/monetization` as the administrator. Create an advertiser, then add a campaign or affiliate link. New campaigns and affiliate links default to draft; review the destination, partner approval, image rights and disclosures before activating.
