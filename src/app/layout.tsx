@@ -4,6 +4,7 @@ import GoogleAnalytics from "@/components/GoogleAnalytics";
 import CookieConsent from "@/components/CookieConsent";
 import PageViewTracker from "@/components/PageViewTracker";
 import SocialLinks from "@/components/SocialLinks";
+import SiteStructuredData from "@/components/SiteStructuredData";
 import { createClient } from "@/lib/supabase/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -37,5 +38,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}<SocialLinks /><GoogleAnalytics /><PageViewTracker /><CookieConsent /></body></html>;
+  return <html lang="en"><body>{children}<SiteStructuredData /><SocialLinks /><GoogleAnalytics /><PageViewTracker /><CookieConsent /></body></html>;
 }
