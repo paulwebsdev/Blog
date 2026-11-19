@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Bookmark, Check, Share2 } from "lucide-react";
+import { Bookmark, Check, Copy, Share2 } from "lucide-react";
 
 const KEY = "paulnova:bookmarks";
 function readBookmarks(): string[] {
@@ -27,21 +27,51 @@ export function BookmarkButton({ slug }: { slug: string }) {
   }
   return <button type="button" onClick={toggle} aria-pressed={saved} className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-600 hover:border-violet-200 hover:text-[#635bff]"><Bookmark size={15} fill={saved ? "currentColor" : "none"}/>{saved ? "Saved" : "Save article"}</button>;
 }
+
 export function ShareArticle({ title }: { title: string }) {
   const [copied, setCopied] = useState(false);
-  async function share() {
-    const url = window.location.href;
-    if (navigator.share) {
-      try { await navigator.share({ title, url }); } catch { /* Respect a user-cancelled share sheet. */ }
-      return;
-    }
+  const [open, setOpen] = useState(false);
+  const [pageUrl, setPageUrl] = useState("");
+  useEffect(() => {
+    setPageUrl(window.location.origin + window.location.pathname);
+  }, []);
+  const encodedUrl = encodeURIComponent(pageUrl);
+  const encodedTitle = encodeURIComponent(title);
+  const shareText = encodeURIComponent(title + " — " + pageUrl);
+  async function copyLink() {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(pageUrl);
       setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
-    } catch { window.open("https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url), "_blank", "noopener,noreferrer"); }
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      window.prompt("Copy this article link:", pageUrl);
+    }
   }
-  return <button type="button" onClick={share} className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-600 hover:border-violet-200 hover:text-[#635bff]">{copied ? <Check size={15}/> : <Share2 size={15}/>}{copied ? "Link copied" : "Share article"}</button>;
+  async function nativeShare() {
+    if (!pageUrl) return;
+    if (navigator.share) {
+      try { await navigator.share({ title, text: title, url: pageUrl }); } catch { /* User cancelled the share sheet. */ }
+    } else {
+      setOpen(true);
+    }
+  }
+  const linkClass = "inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-violet-300 hover:text-[#635bff]";
+  return <div className="relative">
+    <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label="Share this article" className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-600 hover:border-violet-200 hover:text-[#635bff]"><Share2 size={15}/>Share article</button>
+    {open && <div className="absolute right-0 top-full z-30 mt-3 w-[min(19rem,calc(100vw-2.5rem))] rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
+      <div className="mb-3 flex items-center justify-between"><p className="text-sm font-extrabold text-slate-900">Share this article</p><button type="button" onClick={() => setOpen(false)} className="text-xs font-semibold text-slate-400 hover:text-slate-700">Close</button></div>
+      <p className="mb-3 text-xs leading-5 text-slate-500">The article link includes its featured image preview when the platform supports link previews.</p>
+      <div className="grid grid-cols-2 gap-2">
+        <a className={linkClass} href={"https://www.facebook.com/sharer/sharer.php?u=" + encodedUrl} target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a className={linkClass} href={"https://api.whatsapp.com/send?text=" + shareText} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        <a className={linkClass} href={"https://twitter.com/intent/tweet?text=" + encodedTitle + "&url=" + encodedUrl} target="_blank" rel="noopener noreferrer">X / Twitter</a>
+        <a className={linkClass} href={"https://www.linkedin.com/sharing/share-offsite/?url=" + encodedUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a className={linkClass} href={"https://t.me/share/url?url=" + encodedUrl + "&text=" + encodedTitle} target="_blank" rel="noopener noreferrer">Telegram</a>
+        <a className={linkClass} href={"mailto:?subject=" + encodedTitle + "&body=" + shareText}>Email</a>
+      </div>
+      <div className="mt-3 flex gap-2"><button type="button" onClick={copyLink} className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#635bff] px-3 py-2.5 text-xs font-bold text-white hover:bg-violet-700">{copied ? <Check size={14}/> : <Copy size={14}/ >}{copied ? "Copied!" : "Copy link"}</button><button type="button" onClick={nativeShare} className="rounded-lg border border-slate-200 px-3 py-2.5 text-xs font-bold text-slate-600 hover:text-[#635bff]">More…</button></div>
+    </div>}
+  </div>;
 }
 export function BookmarksList({ articles }: { articles: { slug: string; title: string; excerpt: string; category: string }[] }) {
   const [saved, setSaved] = useState<string[]>([]);
