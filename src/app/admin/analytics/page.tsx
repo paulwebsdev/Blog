@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import AnalyticsRefresh from "@/components/AnalyticsRefresh";
 
 export const dynamic = "force-dynamic";
 type Props = { searchParams: Promise<{ range?: string }> };
@@ -54,7 +55,7 @@ export default async function AnalyticsStudio({ searchParams }: Props) {
     <header className="border-b border-slate-100 bg-white"><div className="container flex h-20 items-center justify-between"><Link href="/admin" className="text-xl font-black">Paul<span className="text-[#635bff]">Nova</span> <span className="ml-2 text-xs text-slate-400">STUDIO</span></Link><Link href="/admin" className="text-sm font-semibold text-slate-500">← Dashboard</Link></div></header>
     <section className="container max-w-7xl py-9">
       <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow">Audience intelligence</p><h1 className="mt-2 text-3xl font-black text-slate-900">Analytics studio</h1><p className="mt-2 text-sm text-slate-500">Consented first-party page views, article readership and traffic sources.</p></div>
-        <nav aria-label="Analytics date range" className="flex flex-wrap gap-2">{ranges.map((r) => <Link key={r.value} href={"/admin/analytics?range=" + r.value} className={"rounded-full px-4 py-2 text-xs font-bold " + (selected.value === r.value ? "bg-[#635bff] text-white" : "border border-slate-200 bg-white text-slate-600")}>{r.label}</Link>)}</nav>
+        <div className="flex flex-col items-end gap-3"><AnalyticsRefresh/><nav aria-label="Analytics date range" className="flex flex-wrap gap-2">{ranges.map((r) => <Link key={r.value} href={"/admin/analytics?range=" + r.value} className={"rounded-full px-4 py-2 text-xs font-bold " + (selected.value === r.value ? "bg-[#635bff] text-white" : "border border-slate-200 bg-white text-slate-600")}>{r.label}</Link>)}</nav>
       </div>
       <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><Metric label="Page views" value={rows.length.toLocaleString()}/><Metric label="Sessions (estimated)" value={uniqueVisitors.toLocaleString()}/><Metric label="Article views" value={articleRows.length.toLocaleString()}/><Metric label="Pages viewed" value={new Set(rows.map((r) => r.page_path)).size.toLocaleString()}/></div>
       {rows.length >= 10000 && <p className="mt-3 text-xs text-amber-700">Showing the latest 10,000 records in this date range. Narrow the date range for a more complete breakdown.</p>}
