@@ -62,13 +62,21 @@ export async function saveArticle(formData: FormData) {
     if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Image URL must use HTTPS or HTTP.");
     if (!imageAlt) throw new Error("Add descriptive alt text for the article image.");
   }
-  const publishedAt = status === "published" ? new Date().toISOString() : status === "scheduled" && scheduledAt ? new Date(scheduledAt).toISOString() : null;
+  let existing: { published_at: string | null; author_id: string | null } | null = null;
+  if (id) {
+    const { data, error } = await supabase.from("articles").select("published_at,author_id").eq("id", id).maybeSingle();
+    if (error || !data) throw new Error("The article could not be found or accessed.");
+    existing = data;
+  }
+  const publishedAt = status === "published"
+    ? (existing?.published_at || new Date().toISOString())
+    : status === "scheduled" && scheduledAt ? new Date(scheduledAt).toISOString() : null;
   if (status === "scheduled" && (!publishedAt || new Date(publishedAt) <= new Date())) throw new Error("Choose a future publication date and time.");
   const payload = {
     title, slug, excerpt, category_id: categoryId, content: parseContent(formData.get("content")),
     image_url: imageUrl || null, image_alt: imageAlt || null, seo_title: seoTitle || title,
-    seo_description: seoDescription || excerpt, status, published_at: publishedAt, author_id: user.id,
-    updated_at: new Date().toISOString()
+    seo_description: seoDescription || excerpt, status, published_at: publishedAt,
+    author_id: existing?.author_id || user.id, updated_at: new Date().toISOString()
   };
   const query = id ? supabase.from("articles").update(payload).eq("id", id) : supabase.from("articles").insert(payload);
   const { error } = await query;
