@@ -9,7 +9,8 @@ export type Article = {
   title: string;
   excerpt: string;
   author: string;
-  publishedAt: string;\n  updatedAt?: string;
+  publishedAt: string;
+  updatedAt?: string;
   readTime: string;
   imageUrl?: string;
   imageAlt?: string;
