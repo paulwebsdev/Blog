@@ -45,7 +45,7 @@ export default async function ArticlePage({ params }: Props) {
     headline: article.title,
     description: article.seoDescription,
     datePublished: new Date(article.publishedAt).toISOString(),
-    dateModified: new Date(article.publishedAt).toISOString(),
+    dateModified: new Date(article.updatedAt || article.publishedAt).toISOString(),
     author: { "@type": "Organization", name: article.author },
     publisher: { "@type": "Organization", name: "PaulNova", url: base },
     mainEntityOfPage: { "@type": "WebPage", "@id": `${base}/articles/${article.slug}` },
