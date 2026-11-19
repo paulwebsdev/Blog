@@ -40,7 +40,7 @@ export function ShareArticle({ title }: { title: string }) {
       window.setTimeout(() => setCopied(false), 1800);
     } catch { window.open("https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url), "_blank", "noopener,noreferrer"); }
   }
-  return <button type="button" onClick={share} className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-600 hover:border-violet-200 hover:text-[#635bff]">{copied ? <Check size={15}/> : <Share2 size={15}/ >}{copied ? "Link copied" : "Share article"}</button>;
+  return <button type="button" onClick={share} className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-600 hover:border-violet-200 hover:text-[#635bff]">{copied ? <Check size={15}/> : <Share2 size={15}/>}{copied ? "Link copied" : "Share article"}</button>;
 }
 export function BookmarksList({ articles }: { articles: { slug: string; title: string; excerpt: string; category: string }[] }) {
   const [saved, setSaved] = useState<string[]>([]);
