@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight, BrainCircuit, BriefcaseBusiness, Cpu, Graduat
 import type { Article } from "@/lib/articles";
 import { getPublicArticles } from "@/lib/content";
 import AdSlot from "@/components/AdSlot";
+import SiteLogo from "@/components/SiteLogo";
 
 const categories = [
   { name: "Technology", slug: "technology", icon: Cpu, detail: "Apps, gadgets, software and useful guides", color: "bg-blue-50 text-blue-700" },
@@ -14,7 +15,7 @@ const categories = [
 
 const categoryFor = (category: string) => category === "Artificial Intelligence" ? "AI & TOOLS" : category.toUpperCase();
 
-async function Header() {
+async async function Header() {
   let logoUrl: string | null = null;
   try { const supabase = await createClient(); const { data } = await supabase.from("site_settings").select("logo_url").eq("id", 1).maybeSingle(); logoUrl = data?.logo_url ?? null; } catch { /* Keep the text brand visible if settings cannot load. */ }
   return <header className="sticky top-0 z-30 border-b border-slate-100/90 bg-white/95 backdrop-blur">
