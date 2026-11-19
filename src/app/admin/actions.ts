@@ -251,8 +251,13 @@ export async function saveSiteSettings(formData: FormData) {
     try { parsedFavicon = new URL(faviconUrl); } catch { throw new Error("Favicon must be a valid public image URL."); }
     if (parsedFavicon.protocol !== "https:") throw new Error("Favicon image URL must use HTTPS.");
   }
-  const googleCode = String(formData.get("google_site_verification") ?? "").trim().slice(0,200);
-  if (googleCode && !/^[A-Za-z0-9_-]+$/.test(googleCode)) throw new Error("Google verification code should contain only letters, numbers, underscores or hyphens.");
+  const rawGoogleCode = String(formData.get("google_site_verification") ?? "").trim().slice(0,1000);
+  // Accept either Google's bare content token or the complete HTML meta tag.
+  const metaContent = rawGoogleCode.match(/content\\s*=\\s*["']([^"']+)["']/i)?.[1];
+  const googleCode = (metaContent ?? rawGoogleCode).trim().replace(/^["']|["']$/g, "");
+  if (googleCode && !/^[A-Za-z0-9_-]+$/.test(googleCode)) {
+    throw new Error("Enter only the Google verification value (the text inside content=\"...\"). Do not paste the full HTML tag or the words content=.");
+  }
   const { error } = await supabase.from("site_settings").upsert({
     id: 1, social_links: socialLinks, logo_url: logoUrl || null, favicon_url: faviconUrl || null, google_site_verification: googleCode || null, updated_at: new Date().toISOString()
   }, { onConflict: "id" });
