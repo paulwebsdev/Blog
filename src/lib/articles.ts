@@ -9,6 +9,9 @@ export type Article = {
   title: string;
   excerpt: string;
   author: string;
+  authorSlug?: string;
+  tags?: { name: string; slug: string }[];
+  views?: number;
   publishedAt: string;
   updatedAt?: string;
   readTime: string;
