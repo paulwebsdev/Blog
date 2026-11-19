@@ -1,41 +1,44 @@
 # PaulNova newsletter delivery with Brevo
 
-PaulNova stores subscriber consent and campaign drafts in Supabase. Brevo is the delivery provider for marketing campaigns.
+PaulNova stores subscriber consent and campaign drafts in Supabase. Brevo handles marketing email delivery.
 
-## Required server-side environment variables
+## Server-side environment variables
 
-Set these only in the hosting provider's server environment. Never prefix the API key with `NEXT_PUBLIC_`.
+Set these only in the hosting provider's encrypted server environment. Never prefix the API key with `NEXT_PUBLIC_`.
 
-- `BREVO_API_KEY`: a Brevo API key with contact import and email campaign permissions.
-- `BREVO_LIST_ID`: numeric ID of the dedicated PaulNova newsletter contact list in Brevo.
-- `BREVO_SENDER_EMAIL`: verified sender address, for example `newsletter@paulnova.name.ng`.
+- `BREVO_API_KEY`: a Brevo API key with contact-list, contact-import and email-campaign permissions.
+- `BREVO_SENDER_EMAIL`: an active sender address in Brevo. The current account has a Gmail sender; for production, use a domain sender after authenticating `paulnova.name.ng`.
 - `BREVO_SENDER_NAME`: normally `PaulNova`.
 - `BREVO_REPLY_TO`: optional reply address; defaults to the sender address.
+- `BREVO_LIST_ID`: optional override. If omitted, PaulNova finds or creates a dedicated list named **PaulNova Newsletter** in Brevo folder 1.
 
-## Brevo account preparation
+## Current Brevo account findings
 
-1. Create a dedicated contact list named **PaulNova Newsletter** under Contacts > Lists.
-2. Copy its numeric list ID into `BREVO_LIST_ID`.
-3. Add and verify the sender address in Campaigns/Senders & IP (the exact menu label may vary).
-4. Authenticate `paulnova.name.ng` in Brevo by adding the DNS records Brevo provides (typically DKIM and a domain verification record; configure SPF and DMARC carefully without creating duplicate SPF records).
-5. Keep the API key private. Add it only as `BREVO_API_KEY` in the hosting provider's encrypted environment-variable settings.
+- Account is on the Free plan with 300 email credits.
+- Existing list: `Your first list` (ID 2). PaulNova will not repurpose this unrelated list.
+- Existing active sender: `paulbamigbaye@gmail.com`.
+- No sending domains have been added or authenticated yet.
 
-## Sending workflow
+## Automated setup and test workflow
 
-- Only administrators can send campaigns.
-- The send action includes subscribers whose Supabase status is `active` and whose `consent_at` is present.
-- Subscribers are imported to the dedicated Brevo list in batches and Brevo's import process is checked before campaign creation.
-- A campaign is created in Brevo, its ID is stored in `newsletter_campaigns.brevo_campaign_id`, then the campaign is sent.
-- The local campaign is marked `sent` only after Brevo accepts the send request.
-- The confirmation dialog is intentional: sending cannot be undone.
-- The email includes Brevo's `{{ unsubscribe }}` link. Brevo's native list suppression should be respected for later campaigns; verify this during the first real test.
+1. On the first admin test-send, the server finds or creates **PaulNova Newsletter** automatically.
+2. The admin-only test action creates/uses a Brevo campaign draft and sends a test copy only to the signed-in administrator's email address.
+3. Test sending does not send to the subscriber list and does not mark the Supabase campaign as sent.
+4. The full-send action imports only Supabase subscribers whose status is `active` and whose `consent_at` is present, then sends the campaign after explicit confirmation.
+5. The local campaign is marked sent only after Brevo accepts the send request.
 
-## Before first real campaign
+## Domain and sender setup still required
 
-1. Complete sender and domain authentication.
-2. Use a small internal test list first.
-3. Send a test campaign to addresses controlled by the PaulNova team.
-4. Confirm rendering on mobile and desktop, links, inbox placement, and unsubscribe behavior.
-5. Only then send to the full consented list.
+1. Add `paulnova.name.ng` under Brevo Settings > Senders & IP > Domains (menu wording may vary).
+2. Copy the exact DNS records Brevo generates (verification and DKIM; SPF/DMARC where instructed).
+3. Add those records at the domain DNS provider. Do not create a second SPF TXT record if one already exists.
+4. Wait for Brevo to verify the domain, then create/verify a sender such as `newsletter@paulnova.name.ng`.
+5. DNS authentication does not create a mailbox. Set up a mailbox or forwarding service separately if replies must be received at that address.
 
-Do not send bulk campaigns until the sender domain is authenticated and the first test passes.
+## Safety notes
+
+- The existing list ID 2 is deliberately not used as PaulNova's mailing list.
+- Test emails go only to the signed-in admin address.
+- Bulk sending remains hidden from the newsletter UI until the integration is configured and tested.
+- Brevo's native `{{ unsubscribe }}` placeholder is included in the campaign footer. Verify unsubscribe behavior during the first test.
+- Do not send bulk campaigns until domain authentication, test rendering and unsubscribe behavior have been checked.
