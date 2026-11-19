@@ -17,7 +17,7 @@ export async function subscribeToNewsletter(_previous: NewsletterState, formData
       consent_at: new Date().toISOString(),
       unsubscribed_at: null
     });
-    if (error?.code === "23505") return { status: "success", message: "This address is already registered. If it was previously unsubscribed, it will remain unsubscribed unless you explicitly resubscribe." };
+    if (error?.code === "23505") return { status: "success", message: "This address is already registered. If you previously unsubscribed, please contact us to request reactivation." };
     if (error) {
       console.error("PaulNova newsletter subscription failed:", error.code);
       return { status: "error", message: "We couldn't complete your subscription right now. Please try again shortly." };
