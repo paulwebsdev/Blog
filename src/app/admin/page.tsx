@@ -31,7 +31,7 @@ export default async function AdminDashboard() {
             <h3 className="text-sm font-extrabold text-slate-800">Public website pages</h3>
             <div className="mt-3 grid grid-cols-2 gap-2">
               {[
-                ["Home","/"],["About","/about"],["Advertise & partnerships","/advertise"],["Bookmarks","/bookmarks"],["Contact","/contact"],["Disclaimer","/disclaimer"],["Editorial policy","/editorial-policy"],["FAQ","/faq"],["Newsletter","/newsletter"],["Privacy policy","/privacy"],["Search","/search"],["Terms of use","/terms"]
+                ["Home","/"],["About","/about"],["Advertise & partnerships","/advertise"],["Bookmarks","/bookmarks"],["Contact","/contact"],["Disclaimer","/disclaimer"],["Editorial policy","/editorial-policy"],["FAQ","/faq"],["Privacy policy","/privacy"],["Search","/search"],["Terms of use","/terms"]
               ].map(([label,href])=><Link key={href} href={href} target="_blank" rel="noreferrer" className="rounded-xl border border-slate-100 px-3 py-3 text-xs font-semibold text-slate-600 transition hover:border-[#635bff]/40 hover:bg-[#635bff]/5 hover:text-[#5148e5]">{label}<span className="float-right text-slate-300">↗</span></Link>)}
             </div>
             <div className="mt-4 rounded-xl bg-slate-50 p-3">
