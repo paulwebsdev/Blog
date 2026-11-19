@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock3 } from "lucide-react";
-import { getPublicArticles } from "@/lib/content";
+import { getPublicArticle, getPublicArticles } from "@/lib/content";
 import { BookmarkButton, ShareArticle } from "@/components/ArticleActions";
 
 type Props = { params: Promise<{ slug: string }> };
