@@ -7,7 +7,7 @@ export async function confirmNewsletterUnsubscribe(formData: FormData) {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("unsubscribe_newsletter", { p_token: token });
   if (error || data !== true) {
-    console.error("PaulNova unsubscribe failed:", error.code);
+    console.error("PaulNova unsubscribe failed:", error?.code ?? "invalid-token");
     redirect("/newsletter/unsubscribe?error=1");
   }
   redirect("/newsletter/unsubscribe?done=1");
