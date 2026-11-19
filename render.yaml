@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: paulnova
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: main
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    autoDeploy: false
+    envVars:
+      - key: NEXT_PUBLIC_SITE_URL
+        value: https://paulnova.name.ng
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        value: https://znhyjfvntiuprifwxfiz.supabase.co
+      - key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+        sync: false
