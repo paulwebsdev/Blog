@@ -72,7 +72,7 @@ export async function saveArticle(formData: FormData) {
     let parsed: URL;
     try { parsed = new URL(imageUrl); } catch { throw new Error("Image URL must be a valid public URL."); }
     if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Image URL must use HTTPS or HTTP.");
-    if (!imageAlt) throw new Error("Add descriptive alt text for the article image.");
+    if (!imageAlt) redirect(id ? "/admin/articles/" + id + "?error=image-alt-required" : "/admin/articles/new?error=image-alt-required");
   }
   let existing: { published_at: string | null; author_id: string | null } | null = null;
   if (id) {
