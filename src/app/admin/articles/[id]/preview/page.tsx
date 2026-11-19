@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
+export const metadata = { robots: { index: false, follow: false } };
 type Props = { params: Promise<{ id: string }> };
 export default async function ArticlePreviewPage({ params }: Props) {
   const { id } = await params;
