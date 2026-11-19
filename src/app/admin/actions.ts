@@ -145,7 +145,7 @@ export async function updateNewsletterDraft(formData: FormData) {
   if (subject.length < 3 || subject.length > 180) throw new Error("Subject must be between 3 and 180 characters.");
   if (preview.length > 250) throw new Error("Preview text must be 250 characters or fewer.");
   if (body.length < 10 || body.length > 30000) throw new Error("Newsletter content must be between 10 and 30,000 characters.");
-  const contentHtml = body.split(/\\r?\\n\\s*\\r?\\n/).map((paragraph) => "<p>" + escapeHtml(paragraph).replace(/\\r?\\n/g, "<br>") + "</p>").join("\\n");
+  const contentHtml = body.split(/\r?\n\s*\r?\n/).map((paragraph) => "<p>" + escapeHtml(paragraph).replace(/\r?\n/g, "<br>") + "</p>").join("\n");
   const { error } = await supabase.from("newsletter_campaigns").update({ subject, preview_text: preview || null, content_html: contentHtml, updated_at: new Date().toISOString() }).eq("id", id).eq("status", "draft");
   if (error) throw new Error("Could not update newsletter draft: " + error.message);
   redirect("/admin/newsletter?saved=1");
