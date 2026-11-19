@@ -1,0 +1,11 @@
+import type { Metadata } from "next";
+import InfoPage from "@/components/InfoPage";
+export const metadata: Metadata = { title: "Disclaimer", description: "Important information about the general educational nature of PaulNova content." };
+export default function DisclaimerPage() { return <InfoPage eyebrow="Important information" title="Disclaimer" intro="Please read this disclaimer when using PaulNova. Our content is intended to inform and educate, not to replace individual professional guidance." sections={[
+{heading:"General information only",paragraphs:["Articles, guides, opinions and other materials on PaulNova are provided for general informational and educational purposes. We make reasonable efforts to prepare useful content, but we do not promise that every item is complete, accurate or up to date at the moment you read it."]},
+{heading:"No professional relationship or advice",paragraphs:["Nothing on this website creates a professional-client relationship or constitutes personalised financial, investment, legal, medical, tax, employment or other professional advice. Consider your own circumstances and consult a suitably qualified professional before making decisions with significant consequences."]},
+{heading:"Technology and AI",paragraphs:["Technology products, software features, AI systems, prices, policies and availability can change quickly. Test tools responsibly, review official documentation and consider privacy, security, bias, reliability and costs before relying on a product or automated output."]},
+{heading:"Opportunities and third parties",paragraphs:["References to jobs, courses, grants, products, services or business opportunities are provided for information and do not guarantee eligibility, availability, outcomes or earnings. Verify details directly with the relevant provider. External websites and services are operated independently."]},
+{heading:"Affiliate and sponsored content",paragraphs:["If affiliate links, sponsorships or other paid relationships are introduced, they should be clearly disclosed near the relevant content. Their presence does not change the need for readers to make independent assessments."]},
+{heading:"Contact",paragraphs:["For questions or corrections, email contact.paulnova@gmail.com."]}
+]}/> }
