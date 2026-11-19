@@ -29,6 +29,8 @@ create table if not exists public.articles (
   content jsonb not null default '[]'::jsonb,
   image_url text,
   image_alt text,
+  sources jsonb not null default '[]'::jsonb,
+  correction_note text,
   seo_title text,
   seo_description text,
   status text not null default 'draft' check (status in ('draft','published','scheduled')),
@@ -158,3 +160,7 @@ create policy "PaulNova admins can update site settings" on public.site_settings
 grant select on public.site_settings to anon, authenticated;
 grant insert, update on public.site_settings to authenticated;
 insert into public.site_settings (id) values (1) on conflict (id) do nothing;
+
+-- Editorial source citations and correction notices for existing installations.
+alter table public.articles add column if not exists sources jsonb not null default '[]'::jsonb;
+alter table public.articles add column if not exists correction_note text;
