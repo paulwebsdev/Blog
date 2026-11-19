@@ -7,7 +7,7 @@ export async function subscribeToNewsletter(_previous: NewsletterState, formData
   if (String(formData.get("website") ?? "").trim()) return { status: "success", message: "Thanks — you're on the list." };
   if (String(formData.get("consent") ?? "") !== "yes") return { status: "error", message: "Please confirm that you agree to receive PaulNova newsletter emails." };
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  if (email.length > 254 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(email)) return { status: "error", message: "Please enter a valid email address." };
+  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return { status: "error", message: "Please enter a valid email address." };
   try {
     const supabase = await createClient();
     const { error } = await supabase.from("subscribers").insert({
