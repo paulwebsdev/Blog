@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock3 } from "lucide-react";
-import { getPublicArticle } from "@/lib/content";
+import { getPublicArticle, getPublicArticles } from "@/lib/content";
+import { BookmarkButton, ShareArticle } from "@/components/ArticleActions";
 
 type Props = { params: Promise<{ slug: string }> };
 export const dynamic = "force-dynamic";
@@ -66,7 +67,7 @@ export default async function ArticlePage({ params }: Props) {
         <div className="mt-7 flex flex-wrap items-center gap-3 border-b border-slate-100 pb-8 text-xs text-slate-400">
           <span className="font-semibold text-slate-700">{article.author}</span><span>·</span>
           <time dateTime={article.publishedAt}>{new Date(article.publishedAt).toLocaleDateString("en", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })}</time><span>·</span>
-          <span className="inline-flex items-center gap-1"><Clock3 size={13}/>{article.readTime}</span>
+          <span className="inline-flex items-center gap-1"><Clock3 size={13}/>{article.readTime}</span><div className="flex flex-wrap gap-2 sm:ml-auto"><BookmarkButton slug={article.slug} title={article.title}/><ShareArticle title={article.title}/></div>
         </div>
         {article.imageUrl && <img src={article.imageUrl} alt={article.imageAlt || article.title} className="mt-9 max-h-[440px] w-full rounded-2xl object-cover" loading="eager" />}
         <div className="article-content mt-10">
@@ -75,10 +76,10 @@ export default async function ArticlePage({ params }: Props) {
             {section.paragraphs.map((paragraph) => <p key={paragraph} className="mb-4 text-base leading-8 text-slate-600">{paragraph}</p>)}
           </section>)}
         </div>
-        <div className="mt-12 rounded-2xl bg-[#f7f8fc] p-7">
+        {related.length > 0 && <section className="mt-14"><h2 className="text-2xl font-black text-[#101828]">Related articles</h2><div className="mt-5 grid gap-4 sm:grid-cols-2">{related.map((item) => <Link key={item.slug} href={"/articles/" + item.slug} className="rounded-2xl border border-slate-100 p-5 transition hover:border-violet-200 hover:shadow-lg"><span className="text-[10px] font-bold uppercase tracking-widest text-[#635bff]">{item.category}</span><h3 className="mt-2 font-extrabold text-slate-900">{item.title}</h3><p className="mt-2 text-sm leading-6 text-slate-500">{item.excerpt}</p></Link>)}</div></section>}\n        <div className="mt-12 rounded-2xl bg-[#f7f8fc] p-7">
           <p className="text-sm font-bold text-[#635bff]">More from PaulNova</p>
           <p className="mt-2 text-sm leading-6 text-slate-600">Practical perspectives on technology, AI, digital business and opportunities.</p>
-          <Link href="/" className="mt-4 inline-flex text-sm font-bold text-[#635bff]">Explore more stories →</Link>
+          <div className="mt-4 flex flex-wrap gap-4"><Link href="/" className="text-sm font-bold text-[#635bff]">Explore more stories →</Link><Link href="/bookmarks" className="text-sm font-bold text-[#635bff]">View saved articles →</Link></div>
         </div>
       </article>
     </main>
