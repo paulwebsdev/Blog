@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock3 } from "lucide-react";
-import { getPublicArticle, getPublicArticles } from "@/lib/content";
+import { getPublicArticles } from "@/lib/content";
 import { BookmarkButton, ShareArticle } from "@/components/ArticleActions";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -35,7 +35,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
-  const [article, allArticles] = await Promise.all([getPublicArticle(slug), getPublicArticles()]);
+  const allArticles = await getPublicArticles();
+  const article = allArticles.find((item) => item.slug === slug);
   if (!article) notFound();
   const related = allArticles.filter((item) => item.slug !== article.slug && item.category === article.category).slice(0, 3);
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng";
