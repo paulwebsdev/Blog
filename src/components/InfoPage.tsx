@@ -1,0 +1,14 @@
+import Link from "next/link";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
+
+type InfoSection = { heading: string; paragraphs: string[]; bullets?: string[] };
+export default function InfoPage({ eyebrow, title, intro, sections, updated = "November 2026" }: { eyebrow: string; title: string; intro: string; sections: InfoSection[]; updated?: string }) {
+  return <main className="min-h-screen bg-[#f7f8fc]">
+    <header className="border-b border-slate-100 bg-white"><div className="container flex h-20 items-center justify-between"><Link href="/" className="text-2xl font-black tracking-tight text-[#101828]">Paul<span className="text-[#635bff]">Nova</span></Link><Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-[#635bff]"><ArrowLeft size={16}/> Home</Link></div></header>
+    <section className="container max-w-4xl py-14 md:py-20"><p className="eyebrow">{eyebrow}</p><h1 className="mt-3 text-4xl font-black tracking-tight text-[#101828] md:text-6xl">{title}</h1><p className="mt-6 max-w-3xl text-base leading-8 text-slate-500">{intro}</p><p className="mt-5 text-xs text-slate-400">Last updated: {updated}</p>
+      <div className="mt-12 space-y-9">{sections.map((section) => <section key={section.heading} className="rounded-2xl border border-slate-100 bg-white p-7 md:p-9"><h2 className="text-xl font-extrabold text-slate-900">{section.heading}</h2><div className="mt-4 space-y-4 text-sm leading-7 text-slate-600">{section.paragraphs.map((p,i)=><p key={i}>{p}</p>)}{section.bullets && <ul className="list-disc space-y-2 pl-5">{section.bullets.map((b)=><li key={b}>{b}</li>)}</ul>}</div></section>)}</div>
+      <div className="mt-10 rounded-2xl bg-[#17143d] p-7 text-white md:p-9"><h2 className="text-xl font-extrabold">Have a question?</h2><p className="mt-2 text-sm leading-6 text-slate-300">Our team welcomes thoughtful feedback and enquiries from readers around the world.</p><Link href="/contact" className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-[#17143d]">Contact PaulNova <ArrowUpRight size={16}/></Link></div>
+    </section>
+    <footer className="border-t border-slate-200 bg-white py-8"><div className="container flex flex-col items-center justify-between gap-4 text-xs text-slate-400 sm:flex-row"><span>© {new Date().getFullYear()} PaulNova</span><nav className="flex flex-wrap justify-center gap-x-5 gap-y-2"><Link href="/about">About</Link><Link href="/editorial-policy">Editorial policy</Link><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/contact">Contact</Link></nav></div></footer>
+  </main>;
+}
