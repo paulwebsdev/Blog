@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 import { ArrowRight, ArrowUpRight, BrainCircuit, BriefcaseBusiness, Cpu, GraduationCap, Menu, Search, Sparkles, Zap } from "lucide-react";
 import type { Article } from "@/lib/articles";
 import { getPublicArticles } from "@/lib/content";
@@ -13,12 +14,13 @@ const categories = [
 
 const categoryFor = (category: string) => category === "Artificial Intelligence" ? "AI & TOOLS" : category.toUpperCase();
 
-function Header() {
+async function Header() {
+  let logoUrl: string | null = null;
+  try { const supabase = await createClient(); const { data } = await supabase.from("site_settings").select("logo_url").eq("id", 1).maybeSingle(); logoUrl = data?.logo_url ?? null; } catch { /* Keep the text brand visible if settings cannot load. */ }
   return <header className="sticky top-0 z-30 border-b border-slate-100/90 bg-white/95 backdrop-blur">
     <div className="container flex h-[76px] items-center justify-between">
       <Link href="/" className="flex items-center gap-2.5" aria-label="PaulNova home">
-        <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#635bff] text-lg font-black text-white">P<span className="text-[#c9c5ff]">.</span></span>
-        <span className="text-[23px] font-black tracking-tight text-[#101828]">Paul<span className="text-[#635bff]">Nova</span></span>
+        {logoUrl ? <img src={logoUrl} alt="PaulNova" className="h-11 max-w-[190px] object-contain" /> : <><span className="grid h-10 w-10 place-items-center rounded-xl bg-[#635bff] text-lg font-black text-white">P<span className="text-[#c9c5ff]">.</span></span><span className="text-[23px] font-black tracking-tight text-[#101828]">Paul<span className="text-[#635bff]">Nova</span></span></>}
       </Link>
       <nav aria-label="Main navigation" className="hidden items-center gap-7 text-[13px] font-semibold text-slate-600 lg:flex">
         {categories.map((item) => <Link key={item.slug} className="hover:text-[#635bff]" href={`/category/${item.slug}`}>{item.name}</Link>)}<Link href="/about" className="hover:text-[#635bff]">About</Link><Link href="/advertise" className="hover:text-[#635bff]">Advertise / Sponsor</Link><Link href="/contact" className="hover:text-[#635bff]">Contact</Link><Link href="/bookmarks" className="hover:text-[#635bff]">Saved</Link>
