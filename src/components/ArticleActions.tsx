@@ -32,7 +32,7 @@ export function ShareArticle({ title }: { title: string }) {
   async function share() {
     const url = window.location.href;
     if (navigator.share) {
-      try { await navigator.share({ title, url }); return; } catch { /* User cancelled or share unavailable. */ }
+      try { await navigator.share({ title, url }); } catch { /* Respect a user-cancelled share sheet. */ }\n      return;
     }
     try {
       await navigator.clipboard.writeText(url);
