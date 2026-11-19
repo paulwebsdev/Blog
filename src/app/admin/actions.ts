@@ -134,3 +134,19 @@ export async function deleteNewsletterDraft(formData: FormData) {
   if (error) throw new Error("Could not delete this draft: " + error.message);
   redirect("/admin/newsletter?deleted=1");
 }
+
+export async function updateNewsletterDraft(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const id = String(formData.get("id") ?? "").trim();
+  const subject = String(formData.get("subject") ?? "").trim();
+  const preview = String(formData.get("preview_text") ?? "").trim();
+  const body = String(formData.get("body") ?? "").trim();
+  if (!/^[0-9a-f-]{36}$/i.test(id)) throw new Error("Invalid campaign ID.");
+  if (subject.length < 3 || subject.length > 180) throw new Error("Subject must be between 3 and 180 characters.");
+  if (preview.length > 250) throw new Error("Preview text must be 250 characters or fewer.");
+  if (body.length < 10 || body.length > 30000) throw new Error("Newsletter content must be between 10 and 30,000 characters.");
+  const contentHtml = body.split(/\\r?\\n\\s*\\r?\\n/).map((paragraph) => "<p>" + escapeHtml(paragraph).replace(/\\r?\\n/g, "<br>") + "</p>").join("\\n");
+  const { error } = await supabase.from("newsletter_campaigns").update({ subject, preview_text: preview || null, content_html: contentHtml, updated_at: new Date().toISOString() }).eq("id", id).eq("status", "draft");
+  if (error) throw new Error("Could not update newsletter draft: " + error.message);
+  redirect("/admin/newsletter?saved=1");
+}
