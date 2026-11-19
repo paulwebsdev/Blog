@@ -90,7 +90,7 @@ export default function PageViewTracker() {
     const onConsent = () => { activeSince = Date.now(); void record("page_view"); };
     const onCustomEvent = (event: Event) => {
       const detail = (event as CustomEvent<{ eventType?: string; eventValue?: string }>).detail;
-      if (!detail?.eventType || !["bookmark_add", "bookmark_remove", "share_click"].includes(detail.eventType)) return;
+      if (!detail?.eventType || !["bookmark_add", "bookmark_remove", "share_click", "outbound_click"].includes(detail.eventType)) return;
       void record(detail.eventType, detail.eventValue || null);
     };
     if (consented()) void record("page_view");
@@ -111,7 +111,7 @@ export default function PageViewTracker() {
         void record("reading_time", null, unreported);
       }
     };
-    const onVisibility = () => {
+    const onDocumentClick = (event: MouseEvent) => {\n      const target = event.target as HTMLElement | null;\n      const anchor = target?.closest("a[href]") as HTMLAnchorElement | null;\n      if (!anchor) return;\n      try {\n        const url = new URL(anchor.href, window.location.href);\n        if (url.origin === window.location.origin) return;\n        if (/facebook\\.com|whatsapp|twitter\\.com|x\\.com|linkedin\\.com|t\\.me/.test(url.hostname)) return;\n        void record("outbound_click", url.hostname);\n      } catch { /* Ignore invalid link targets. */ }\n    };\n    const onVisibility = () => {
       if (document.visibilityState === "hidden") flushReadingTime();
       else activeSince = Date.now();
     };
@@ -129,13 +129,13 @@ export default function PageViewTracker() {
         void record("scroll_depth", "50");
       }
     };
-    document.addEventListener("visibilitychange", onVisibility);
+    document.addEventListener("visibilitychange", onVisibility);\n    document.addEventListener("click", onDocumentClick, true);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       flushReadingTime();
       window.removeEventListener("paulnova-consent-updated", onConsent);
       window.removeEventListener("paulnova-analytics-event", onCustomEvent);
-      document.removeEventListener("visibilitychange", onVisibility);
+      document.removeEventListener("visibilitychange", onVisibility);\n      document.removeEventListener("click", onDocumentClick, true);
       window.removeEventListener("scroll", onScroll);
     };
   }, [pathname]);
