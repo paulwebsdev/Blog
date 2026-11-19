@@ -42,17 +42,17 @@ function getTrafficDetails() {
     if (referrer && referrer.hostname !== window.location.hostname) referrerHost = referrer.hostname;
   } catch { /* Ignore malformed referrers. */ }
 
-  const rawSource = utmSource || referrerHost?.replace(/^www\\./, "") || "";
+  const rawSource = utmSource || referrerHost?.replace(/^www\./, "") || "";
   let source = "Direct";
   if (rawSource) {
     if (/google|bing|yahoo|duckduckgo|yandex|baidu/.test(rawSource)) source = "Organic search";
-    else if (/facebook|fb\\./.test(rawSource)) source = "Facebook";
-    else if (/whatsapp|wa\\.me/.test(rawSource)) source = "WhatsApp";
+    else if (/facebook|fb\./.test(rawSource)) source = "Facebook";
+    else if (/whatsapp|wa\.me/.test(rawSource)) source = "WhatsApp";
     else if (/instagram/.test(rawSource)) source = "Instagram";
-    else if (/t\\.co|twitter|x\\.com/.test(rawSource)) source = "X";
+    else if (/t\.co|twitter|x\.com/.test(rawSource)) source = "X";
     else if (/linkedin/.test(rawSource)) source = "LinkedIn";
-    else if (/youtube|youtu\\.be/.test(rawSource)) source = "YouTube";
-    else if (utmSource) source = utmSource.replace(/[_-]/g, " ").replace(/\\b\\w/g, (c) => c.toUpperCase());
+    else if (/youtube|youtu\.be/.test(rawSource)) source = "YouTube";
+    else if (utmSource) source = utmSource.replace(/[_-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     else source = "Referral";
   }
   return { referrerHost, trafficSource: source, utmMedium, utmCampaign };
@@ -66,7 +66,7 @@ export default function PageViewTracker() {
     lastTrackedPath.current = pathname;
 
     const consented = () => localStorage.getItem(CONSENT_KEY) === "accepted";
-    const articleMatch = pathname.match(/^\\/articles\\/([^/]+)$/);
+    const articleMatch = pathname.match(/^\/articles\/([^/]+)$/);
     const articleSlug = articleMatch ? decodeURIComponent(articleMatch[1]).slice(0, 200) : null;
     const supabase = createClient();
     const record = async (eventType: string, eventValue: string | null = null, durationSeconds: number | null = null) => {
