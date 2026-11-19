@@ -9,10 +9,14 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   let verification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+  let logoUrl: string | undefined;
+  let faviconUrl: string | undefined;
   try {
     const supabase = await createClient();
-    const { data } = await supabase.from("site_settings").select("google_site_verification").eq("id", 1).maybeSingle();
+    const { data } = await supabase.from("site_settings").select("google_site_verification,logo_url,favicon_url").eq("id", 1).maybeSingle();
     verification = data?.google_site_verification || verification;
+    logoUrl = data?.logo_url || undefined;
+    faviconUrl = data?.favicon_url || undefined;
   } catch { /* The site remains renderable if settings are temporarily unavailable. */ }
   return {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng"),
@@ -25,12 +29,15 @@ export async function generateMetadata(): Promise<Metadata> {
     siteName: "PaulNova",
     title: "PaulNova — Technology. Intelligence. Opportunities.",
     description: "Technology, AI, digital business, education and opportunities for a changing world.",
-    locale: "en_US"
+    locale: "en_US",
+    ...(logoUrl ? { images: [{ url: logoUrl, alt: "PaulNova — Technology. Intelligence. Opportunities." }] } : {})
   },
+  ...(faviconUrl ? { icons: { icon: [{ url: faviconUrl }], shortcut: [{ url: faviconUrl }], apple: [{ url: faviconUrl }] } } : {}),
   twitter: {
     card: "summary_large_image",
     title: "PaulNova — Technology. Intelligence. Opportunities.",
-    description: "Technology, AI, digital business, education and opportunities for a changing world."
+    description: "Technology, AI, digital business, education and opportunities for a changing world.",
+    ...(logoUrl ? { images: [logoUrl] } : {})
   },
   robots: { index: true, follow: true },
   ...(verification ? { verification: { google: verification } } : {})
