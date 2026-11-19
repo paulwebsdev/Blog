@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ id: string }> };
-function plain(html: string) { return html.replace(/<\\/p>\\s*<p>/gi, "\\n\\n").replace(/<br\\s*\\/?\\s*>/gi, "\\n").replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'"); }
+function plain(html: string) { return html.replaceAll("<p>", "").replaceAll("</p>", "\n\n").replaceAll("<br>", "\n").replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&quot;", '"').replaceAll("&#39;", "'"); }
 export default async function NewsletterPreview({ params }: Props) {
   const { id } = await params;
   const supabase = await createClient();
