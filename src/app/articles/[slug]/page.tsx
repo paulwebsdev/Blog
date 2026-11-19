@@ -15,6 +15,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const article = await getPublicArticle(slug);
   if (!article) return { title: "Article not found" };
+  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng";
+  const articleUrl = new URL(`/articles/${article.slug}`, base).toString();
+  const socialImage = article.imageUrl ? new URL(article.imageUrl, base).toString() : undefined;
   return {
     title: article.seoTitle,
     description: article.seoDescription,
@@ -48,8 +51,6 @@ export default async function ArticlePage({ params }: Props) {
   const { data: articleRow } = await supabase.from("articles").select("id").eq("slug", slug).maybeSingle();
   const { data: sponsorship } = articleRow ? await supabase.from("sponsored_posts").select("sponsor_name,disclosure_text").eq("article_id", articleRow.id).eq("status","active").maybeSingle() : {data:null};
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng";
-  const articleUrl = new URL(`/articles/${article.slug}`, base).toString();
-  const socialImage = article.imageUrl ? new URL(article.imageUrl, base).toString() : undefined;
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -78,11 +79,12 @@ export default async function ArticlePage({ params }: Props) {
         <h1 className="mt-5 text-4xl font-black leading-tight tracking-tight text-[#101828] md:text-6xl">{article.title}</h1>
         <p className="mt-6 text-lg leading-8 text-slate-500">{article.excerpt}</p>
         <div className="mt-7 flex flex-wrap items-center gap-3 border-b border-slate-100 pb-8 text-xs text-slate-400">
-          <span className="font-semibold text-slate-700">{article.author}</span><span>·</span>
+          {article.authorSlug ? <Link href={`/authors/${article.authorSlug}`} className="font-semibold text-slate-700 hover:text-[#635bff]">{article.author}</Link> : <span className="font-semibold text-slate-700">{article.author}</span>}<span>·</span>
           <time dateTime={article.publishedAt}>{new Date(article.publishedAt).toLocaleDateString("en", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })}</time><span>·</span>
           <span className="inline-flex items-center gap-1"><Clock3 size={13}/>{article.readTime}</span><div className="flex flex-wrap gap-2 sm:ml-auto"><BookmarkButton slug={article.slug}/><ShareArticle title={article.title}/></div>
         </div>
         {article.imageUrl && <img src={article.imageUrl} alt={article.imageAlt || article.title} className="mt-9 max-h-[440px] w-full rounded-2xl object-cover" loading="eager" />}
+        {article.tags?.length ? <div className="mt-5 flex flex-wrap gap-2" aria-label="Article topics">{article.tags.map((tag) => <Link key={tag.slug} href={`/tags/${tag.slug}`} className="rounded-full bg-violet-50 px-3 py-1.5 text-xs font-semibold text-[#5148e5] hover:bg-violet-100">#{tag.name}</Link>)}</div> : null}
         <AdSlot placement="in_article"/>
         <div className="article-content mt-10">
           {article.sections.map((section) => <section key={section.heading} className="mb-9">
