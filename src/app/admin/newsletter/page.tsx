@@ -11,7 +11,7 @@ export default async function AdminNewsletterPage({ searchParams }: { searchPara
   if (profile?.role !== "admin") redirect("/admin?error=admin-required");
   const [{ data: campaigns }, { count: activeSubscribers }, params] = await Promise.all([
     supabase.from("newsletter_campaigns").select("id,subject,preview_text,status,created_at,updated_at").order("created_at", { ascending: false }).limit(50),
-    supabase.from("subscribers").select("*", { count: "exact", head: true }).eq("status", "active"),
+    supabase.from("subscribers").select("*", { count: "exact", head: true }).eq("status", "active").not("consent_at", "is", null),
     searchParams
   ]);
   return <main className="min-h-screen bg-[#f7f8fc]"><header className="border-b border-slate-100 bg-white"><div className="container flex h-20 items-center justify-between"><Link href="/admin" className="text-xl font-black text-slate-900">Paul<span className="text-[#635bff]">Nova</span> <span className="ml-2 text-xs text-slate-400">STUDIO</span></Link><Link href="/admin" className="text-sm font-semibold text-slate-500">← Dashboard</Link></div></header>
