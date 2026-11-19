@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { updateNewsletterDraft } from "@/app/admin/actions";
 export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ id: string }> };
-function toPlainText(html: string) { return html.replace(/<\\/p>\\s*<p>/gi, "\\n\\n").replace(/<br\\s*\\/?\\s*>/gi, "\\n").replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'"); }
+function toPlainText(html: string) { return html.replace(/<\/p>\s*<p>/gi, "\n\n").replace(/<br\s*\/?\s*>/gi, "\n").replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'"); }
 export default async function EditNewsletterDraft({ params }: Props) {
   const { id } = await params;
   const supabase = await createClient();
