@@ -116,6 +116,10 @@ create table if not exists public.page_views (
 alter table public.page_views add column if not exists event_type text not null default 'page_view';
 alter table public.page_views add column if not exists event_value text;
 alter table public.page_views add column if not exists duration_seconds integer;
+alter table public.page_views drop constraint if exists page_views_event_type_check;
+alter table public.page_views add constraint page_views_event_type_check check (event_type in ('page_view','reading_time','scroll_depth','bookmark_add','bookmark_remove','share_click','outbound_click'));
+alter table public.page_views drop constraint if exists page_views_duration_seconds_check;
+alter table public.page_views add constraint page_views_duration_seconds_check check (duration_seconds is null or (duration_seconds >= 0 and duration_seconds <= 86400));
 create index if not exists page_views_created_at_idx on public.page_views (created_at desc);
 create index if not exists page_views_article_created_at_idx on public.page_views (article_slug, created_at desc);
 create index if not exists page_views_event_type_created_at_idx on public.page_views (event_type, created_at desc);
