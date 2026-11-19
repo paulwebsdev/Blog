@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { confirmNewsletterUnsubscribe } from "./actions";
-export const metadata = { title: "Unsubscribe | PaulNova", robots: { index: false, follow: false } };
+export const metadata = { title: "Unsubscribe | PaulNova", robots: { index: false, follow: false }, referrer: "no-referrer" };
 export default async function UnsubscribePage({ searchParams }: { searchParams: Promise<{ token?: string; done?: string; invalid?: string; error?: string }> }) {
   const params = await searchParams;
   const validToken = Boolean(params.token && /^[0-9a-f-]{36}$/i.test(params.token));
