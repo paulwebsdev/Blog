@@ -6,6 +6,7 @@ import { getPublicArticle, getPublicArticles } from "@/lib/content";
 import { BookmarkButton, ShareArticle } from "@/components/ArticleActions";
 import { createClient } from "@/lib/supabase/server";
 import AdSlot from "@/components/AdSlot";
+import SiteLogo from "@/components/SiteLogo";
 
 type Props = { params: Promise<{ slug: string }> };
 export const dynamic = "force-dynamic";
@@ -72,7 +73,7 @@ export default async function ArticlePage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
       <header className="border-b border-slate-100">
         <div className="container flex h-[76px] items-center justify-between">
-          <Link href="/" className="text-2xl font-black tracking-tight text-[#101828]">Paul<span className="text-[#635bff]">Nova</span></Link>
+          <SiteLogo/>
           <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-[#635bff]"><ArrowLeft size={16}/> Back to home</Link>
         </div>
       </header>
