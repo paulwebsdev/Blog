@@ -3,6 +3,7 @@ import { ArrowRight, ArrowUpRight, BrainCircuit, BriefcaseBusiness, Cpu, Graduat
 import { articles } from "@/lib/articles";
 import { getPublicArticles } from "@/lib/content";
 import NewsletterForm from "@/app/newsletter/NewsletterForm";
+import AdSlot from "@/components/AdSlot";
 
 const categories = [
   { name: "Technology", slug: "technology", icon: Cpu, detail: "Apps, gadgets, software and useful guides", color: "bg-blue-50 text-blue-700" },
@@ -81,6 +82,7 @@ export default async function Home() {
         </div>
       </div>
     </section>
+    <div className="container"><AdSlot placement="homepage_banner"/></div>
     <section id="topics" className="container py-20">
       <div className="mb-9 flex items-end justify-between gap-4"><div><div className="eyebrow">Explore PaulNova</div><h2 className="mt-3 text-3xl font-black tracking-tight md:text-4xl">Curiosity starts here.</h2></div><span className="hidden text-sm text-slate-400 sm:block">Four areas. One bigger picture.</span></div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{categories.map((item) => { const Icon = item.icon; return <Link key={item.slug} href={`/category/${item.slug}`} className="group rounded-2xl border border-slate-100 p-6 transition hover:-translate-y-1 hover:border-violet-100 hover:shadow-lg hover:shadow-slate-100"><span className={`grid h-12 w-12 place-items-center rounded-xl ${item.color}`}><Icon size={22}/></span><h3 className="mt-5 font-extrabold text-slate-900 group-hover:text-[#635bff]">{item.name}</h3><p className="mt-2 text-xs leading-5 text-slate-500">{item.detail}</p><ArrowUpRight className="mt-5 text-slate-300 group-hover:text-[#635bff]" size={17}/></Link>})}</div>
