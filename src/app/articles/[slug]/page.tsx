@@ -18,20 +18,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: article.seoTitle,
     description: article.seoDescription,
-    alternates: { canonical: `/articles/${article.slug}` },
+    alternates: { canonical: articleUrl },
     openGraph: {
       type: "article",
+      url: articleUrl,
+      siteName: "PaulNova",
       title: article.seoTitle,
       description: article.seoDescription,
       publishedTime: new Date(article.publishedAt).toISOString(),
       authors: [article.author],
-      images: article.imageUrl ? [{ url: article.imageUrl, alt: article.imageAlt || article.title }] : []
+      images: socialImage ? [{ url: socialImage, alt: article.imageAlt || article.title }] : []
     },
     twitter: {
-      card: article.imageUrl ? "summary_large_image" : "summary",
+      card: socialImage ? "summary_large_image" : "summary",
       title: article.seoTitle,
       description: article.seoDescription,
-      images: article.imageUrl ? [article.imageUrl] : []
+      images: socialImage ? [socialImage] : []
     }
   };
 }
@@ -46,6 +48,8 @@ export default async function ArticlePage({ params }: Props) {
   const { data: articleRow } = await supabase.from("articles").select("id").eq("slug", slug).maybeSingle();
   const { data: sponsorship } = articleRow ? await supabase.from("sponsored_posts").select("sponsor_name,disclosure_text").eq("article_id", articleRow.id).eq("status","active").maybeSingle() : {data:null};
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng";
+  const articleUrl = new URL(`/articles/${article.slug}`, base).toString();
+  const socialImage = article.imageUrl ? new URL(article.imageUrl, base).toString() : undefined;
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Article",
