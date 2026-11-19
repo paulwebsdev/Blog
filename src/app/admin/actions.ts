@@ -254,6 +254,7 @@ export async function sendNewsletterCampaign(formData: FormData) {
     .maybeSingle();
   if (!claimed) throw new Error("This campaign is already being processed or has already been sent.");
 
+  let brevoAccepted = false;
   try {
     for (let offset = 0; offset < subscriberCount; offset += 1000) {
       const { data: subscribers, error: subscriberError } = await supabase
@@ -306,15 +307,18 @@ export async function sendNewsletterCampaign(formData: FormData) {
     }
 
     await brevoRequest(`/emailCampaigns/${brevoCampaignId}/sendNow`, { method: "POST" });
+    brevoAccepted = true;
     const { error: sentError } = await supabase
       .from("newsletter_campaigns")
       .update({ status: "sent", sent_at: new Date().toISOString(), updated_at: new Date().toISOString() })
       .eq("id", id)
       .eq("status", "sending");
     if (sentError) throw new Error("Brevo accepted the campaign, but PaulNova could not update its local status. Check Brevo before attempting another send.");
-    redirect("/admin/newsletter?sent=1");
   } catch (error) {
-    await supabase.from("newsletter_campaigns").update({ status: "draft", updated_at: new Date().toISOString() }).eq("id", id).eq("status", "sending");
+    if (!brevoAccepted) {
+      await supabase.from("newsletter_campaigns").update({ status: "draft", updated_at: new Date().toISOString() }).eq("id", id).eq("status", "sending");
+    }
     throw error;
   }
+  redirect("/admin/newsletter?sent=1");
 }
