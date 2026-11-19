@@ -52,6 +52,17 @@ export async function saveArticle(formData: FormData) {
   const imageAlt = String(formData.get("image_alt") ?? "").trim();
   const seoTitle = String(formData.get("seo_title") ?? "").trim();
   const seoDescription = String(formData.get("seo_description") ?? "").trim();
+  const correctionNote = String(formData.get("correction_note") ?? "").trim().slice(0, 1200);
+  const sourceLines = String(formData.get("sources") ?? "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 20);
+  const sources = sourceLines.map((line) => {
+    const separator = line.indexOf("|");
+    if (separator < 2) throw new Error("Each source must be entered as: Source title | https://source-url");
+    const title = line.slice(0, separator).trim().slice(0, 180);
+    let url: URL;
+    try { url = new URL(line.slice(separator + 1).trim()); } catch { throw new Error("Every source needs a valid public URL."); }
+    if (!["https:", "http:"].includes(url.protocol)) throw new Error("Source URLs must use HTTPS or HTTP.");
+    return { title, url: url.toString() };
+  });
   const status = String(formData.get("status") ?? "draft");
   const scheduledAt = String(formData.get("scheduled_at") ?? "").trim();
   const slug = safeSlug(String(formData.get("slug") ?? title));
@@ -75,7 +86,7 @@ export async function saveArticle(formData: FormData) {
   if (status === "scheduled" && (!publishedAt || new Date(publishedAt) <= new Date())) throw new Error("Choose a future publication date and time.");
   const payload = {
     title, slug, excerpt, category_id: categoryId, content: parseContent(formData.get("content")),
-    image_url: imageUrl || null, image_alt: imageAlt || null, seo_title: seoTitle || title,
+    image_url: imageUrl || null, image_alt: imageAlt || null, sources, correction_note: correctionNote || null, seo_title: seoTitle || title,
     seo_description: seoDescription || excerpt, status, published_at: publishedAt,
     author_id: existing?.author_id || user.id, updated_at: new Date().toISOString()
   };
