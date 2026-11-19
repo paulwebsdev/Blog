@@ -69,7 +69,7 @@ export function ShareArticle({ title }: { title: string }) {
         <a className={linkClass} href={"https://t.me/share/url?url=" + encodedUrl + "&text=" + encodedTitle} target="_blank" rel="noopener noreferrer">Telegram</a>
         <a className={linkClass} href={"mailto:?subject=" + encodedTitle + "&body=" + shareText}>Email</a>
       </div>
-      <div className="mt-3 flex gap-2"><button type="button" onClick={copyLink} className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#635bff] px-3 py-2.5 text-xs font-bold text-white hover:bg-violet-700">{copied ? <Check size={14}/> : <Copy size={14}/ >}{copied ? "Copied!" : "Copy link"}</button><button type="button" onClick={nativeShare} className="rounded-lg border border-slate-200 px-3 py-2.5 text-xs font-bold text-slate-600 hover:text-[#635bff]">More…</button></div>
+      <div className="mt-3 flex gap-2"><button type="button" onClick={copyLink} className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#635bff] px-3 py-2.5 text-xs font-bold text-white hover:bg-violet-700">{copied ? <Check size={14}/> : <Copy size={14}/>}{copied ? "Copied!" : "Copy link"}</button><button type="button" onClick={nativeShare} className="rounded-lg border border-slate-200 px-3 py-2.5 text-xs font-bold text-slate-600 hover:text-[#635bff]">More…</button></div>
     </div>}
   </div>;
 }
