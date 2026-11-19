@@ -226,7 +226,7 @@ export async function sendNewsletterCampaign(formData: FormData) {
   const replyTo = String(process.env.BREVO_REPLY_TO ?? senderEmail).trim();
   if (!apiKey) throw new Error("Brevo API key is not configured on the server.");
   if (!Number.isInteger(listId) || listId < 1) throw new Error("Set BREVO_LIST_ID to the numeric ID of your PaulNova subscribers list in Brevo.");
-  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(senderEmail)) throw new Error("Set BREVO_SENDER_EMAIL to a verified sender address in Brevo.");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(senderEmail)) throw new Error("Set BREVO_SENDER_EMAIL to a verified sender address in Brevo.");
 
   const { data: campaign, error: campaignError } = await supabase
     .from("newsletter_campaigns")
@@ -282,7 +282,8 @@ export async function sendNewsletterCampaign(formData: FormData) {
 
     let brevoCampaignId = campaign.brevo_campaign_id as number | null;
     if (!brevoCampaignId) {
-      const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng").replace(/\\/$/, "");
+      const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng";
+      const siteUrl = rawSiteUrl.endsWith("/") ? rawSiteUrl.slice(0, -1) : rawSiteUrl;
       const htmlContent = `<!doctype html><html><body style="margin:0;background:#f5f6fb;font-family:Arial,sans-serif;color:#172033"><div style="max-width:640px;margin:0 auto;padding:32px 16px"><div style="background:#fff;border-radius:18px;padding:32px"><p style="font-size:13px;font-weight:700;letter-spacing:2px;color:#635bff">PAULNOVA</p><h1 style="font-size:26px;line-height:1.25;margin:18px 0;color:#172033">${escapeHtml(campaign.subject)}</h1>${campaign.content_html}<p style="margin-top:32px;padding-top:20px;border-top:1px solid #e5e7eb;font-size:12px;line-height:1.7;color:#64748b">Technology. Intelligence. Opportunities.<br/><a href="${siteUrl}" style="color:#635bff">Visit PaulNova</a> · <a href="{{ unsubscribe }}" style="color:#64748b">Unsubscribe</a></p></div></div></body></html>`;
       const created = await brevoRequest<{ id: number }>("/emailCampaigns", {
         method: "POST",
