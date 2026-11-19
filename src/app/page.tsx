@@ -21,7 +21,7 @@ function Header() {
         <span className="text-[23px] font-black tracking-tight text-[#101828]">Paul<span className="text-[#635bff]">Nova</span></span>
       </Link>
       <nav aria-label="Main navigation" className="hidden items-center gap-7 text-[13px] font-semibold text-slate-600 lg:flex">
-        {categories.map((item) => <Link key={item.slug} className="hover:text-[#635bff]" href={`/category/${item.slug}`}>{item.name}</Link>)}
+        {categories.map((item) => <Link key={item.slug} className="hover:text-[#635bff]" href={`/category/${item.slug}`}>{item.name}</Link>)}<Link href="/bookmarks" className="hover:text-[#635bff]">Saved</Link>
       </nav>
       <div className="flex items-center gap-2">
         <Link aria-label="Search PaulNova" href="/search" className="rounded-full p-2.5 text-slate-500 hover:bg-slate-100"><Search size={19}/></Link>
@@ -30,7 +30,7 @@ function Header() {
           <summary aria-label="Open navigation menu" className="grid h-10 w-10 cursor-pointer list-none place-items-center rounded-xl text-slate-700 hover:bg-slate-100"><Menu size={21}/></summary>
           <nav aria-label="Mobile navigation" className="absolute right-0 top-12 z-40 flex w-64 flex-col gap-1 rounded-2xl border border-slate-100 bg-white p-3 shadow-xl">
             {categories.map((item) => <Link key={item.slug} className="rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-violet-50 hover:text-[#635bff]" href={`/category/${item.slug}`}>{item.name}</Link>)}
-            <Link className="rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-violet-50 hover:text-[#635bff]" href="/search">Search articles</Link>
+            <Link className="rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-violet-50 hover:text-[#635bff]" href="/search">Search articles</Link><Link className="rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-violet-50 hover:text-[#635bff]" href="/bookmarks">Saved articles</Link>
           </nav>
         </details>
       </div>
