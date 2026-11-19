@@ -1,0 +1,9 @@
+import type { Metadata } from "next";
+import InfoPage from "@/components/InfoPage";
+export const metadata: Metadata = { title: "About PaulNova", description: "Learn about PaulNova, an independent global publication exploring technology, AI, digital business, education and careers." };
+export default function AboutPage() { return <InfoPage eyebrow="Our purpose" title="A clearer view of what's next." intro="PaulNova is a global technology and opportunities publication built to make a fast-changing digital world easier to understand and navigate. We connect useful knowledge with practical possibilities." sections={[
+{heading:"What we cover",paragraphs:["Our coverage is organised around four connected areas: technology; artificial intelligence; business and money; and education and careers. We explain developments, explore useful tools and highlight ideas that can help people make informed decisions." ]},
+{heading:"Who we write for",paragraphs:["PaulNova is for curious readers, students, professionals, founders, creators and lifelong learners. Our perspective is global: we aim to make our reporting and guides useful across countries, industries and experience levels."]},
+{heading:"Our approach",paragraphs:["We value clarity over jargon, usefulness over hype and context over headlines. Technology can create opportunity, but it also raises important questions. We aim to explain both the promise and the limitations." ]},
+{heading:"Our promise",paragraphs:["We aim to publish helpful, understandable and responsibly prepared content. We welcome corrections, questions, story ideas and constructive feedback from our readers."]},
+]}/> }
