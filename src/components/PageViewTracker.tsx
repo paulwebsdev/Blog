@@ -87,7 +87,7 @@ export default function PageViewTracker() {
       });
     };
 
-    const onConsent = () => { void record("page_view"); };
+    const onConsent = () => { activeSince = Date.now(); void record("page_view"); };
     const onCustomEvent = (event: Event) => {
       const detail = (event as CustomEvent<{ eventType?: string; eventValue?: string }>).detail;
       if (!detail?.eventType || !["bookmark_add", "bookmark_remove", "share_click"].includes(detail.eventType)) return;
