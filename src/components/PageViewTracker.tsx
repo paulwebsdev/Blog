@@ -42,17 +42,17 @@ function getTrafficDetails() {
     if (referrer && referrer.hostname !== window.location.hostname) referrerHost = referrer.hostname;
   } catch { /* Ignore malformed referrers. */ }
 
-  const rawSource = utmSource || referrerHost?.replace(/^www\./, "") || "";
+  const rawSource = utmSource || referrerHost?.replace(/^www\\./, "") || "";
   let source = "Direct";
   if (rawSource) {
     if (/google|bing|yahoo|duckduckgo|yandex|baidu/.test(rawSource)) source = "Organic search";
-    else if (/facebook|fb\./.test(rawSource)) source = "Facebook";
-    else if (/whatsapp|wa\.me/.test(rawSource)) source = "WhatsApp";
+    else if (/facebook|fb\\./.test(rawSource)) source = "Facebook";
+    else if (/whatsapp|wa\\.me/.test(rawSource)) source = "WhatsApp";
     else if (/instagram/.test(rawSource)) source = "Instagram";
-    else if (/t\.co|twitter|x\.com/.test(rawSource)) source = "X";
+    else if (/t\\.co|twitter|x\\.com/.test(rawSource)) source = "X";
     else if (/linkedin/.test(rawSource)) source = "LinkedIn";
-    else if (/youtube|youtu\.be/.test(rawSource)) source = "YouTube";
-    else if (utmSource) source = utmSource.replace(/[_-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    else if (/youtube|youtu\\.be/.test(rawSource)) source = "YouTube";
+    else if (utmSource) source = utmSource.replace(/[_-]/g, " ").replace(/\\b\\w/g, (c) => c.toUpperCase());
     else source = "Referral";
   }
   return { referrerHost, trafficSource: source, utmMedium, utmCampaign };
@@ -65,27 +65,79 @@ export default function PageViewTracker() {
     if (!pathname || pathname.startsWith("/admin") || pathname.startsWith("/api") || pathname === lastTrackedPath.current) return;
     lastTrackedPath.current = pathname;
 
-    const record = async () => {
-      if (localStorage.getItem(CONSENT_KEY) !== "accepted") return;
+    const consented = () => localStorage.getItem(CONSENT_KEY) === "accepted";
+    const articleMatch = pathname.match(/^\\/articles\\/([^/]+)$/);
+    const articleSlug = articleMatch ? decodeURIComponent(articleMatch[1]).slice(0, 200) : null;
+    const supabase = createClient();
+    const record = async (eventType: string, eventValue: string | null = null, durationSeconds: number | null = null) => {
+      if (!consented()) return;
       const { sessionId, referrerHost, trafficSource, utmMedium, utmCampaign } = getSessionContext();
-      const articleMatch = pathname.match(/^\/articles\/([^/]+)$/);
-      const supabase = createClient();
       await supabase.from("page_views").insert({
         page_path: pathname.slice(0, 500),
         page_title: document.title.slice(0, 300),
-        article_slug: articleMatch ? decodeURIComponent(articleMatch[1]).slice(0, 200) : null,
+        article_slug: articleSlug,
         referrer_host: referrerHost,
         traffic_source: trafficSource,
         utm_medium: utmMedium,
         utm_campaign: utmCampaign,
-        session_id: sessionId
+        session_id: sessionId,
+        event_type: eventType,
+        event_value: eventValue?.slice(0, 100) || null,
+        duration_seconds: durationSeconds
       });
     };
 
-    const onConsent = () => { void record(); };
-    if (localStorage.getItem(CONSENT_KEY) === "accepted") void record();
+    const onConsent = () => { void record("page_view"); };
+    const onCustomEvent = (event: Event) => {
+      const detail = (event as CustomEvent<{ eventType?: string; eventValue?: string }>).detail;
+      if (!detail?.eventType || !["bookmark_add", "bookmark_remove", "share_click"].includes(detail.eventType)) return;
+      void record(detail.eventType, detail.eventValue || null);
+    };
+    if (consented()) void record("page_view");
     window.addEventListener("paulnova-consent-updated", onConsent);
-    return () => window.removeEventListener("paulnova-consent-updated", onConsent);
+    window.addEventListener("paulnova-analytics-event", onCustomEvent);
+
+    let activeSince = Date.now();
+    let accumulatedSeconds = 0;
+    let flushedSeconds = 0;
+    let maxScroll = 0;
+    const flushReadingTime = () => {
+      if (!articleSlug || !consented()) return;
+      if (document.visibilityState === "visible") accumulatedSeconds += Math.max(0, Math.round((Date.now() - activeSince) / 1000));
+      activeSince = Date.now();
+      const unreported = accumulatedSeconds - flushedSeconds;
+      if (unreported >= 5) {
+        flushedSeconds = accumulatedSeconds;
+        void record("reading_time", null, unreported);
+      }
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") flushReadingTime();
+      else activeSince = Date.now();
+    };
+    const onScroll = () => {
+      if (!articleSlug || !consented()) return;
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      if (scrollable <= 0) return;
+      const depth = Math.min(100, Math.round((window.scrollY / scrollable) * 100));
+      maxScroll = Math.max(maxScroll, depth);
+      if (maxScroll >= 90 && maxScroll < 100) {
+        maxScroll = 100;
+        void record("scroll_depth", "90");
+      } else if (maxScroll >= 50 && maxScroll < 90) {
+        maxScroll = 90;
+        void record("scroll_depth", "50");
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      flushReadingTime();
+      window.removeEventListener("paulnova-consent-updated", onConsent);
+      window.removeEventListener("paulnova-analytics-event", onCustomEvent);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, [pathname]);
   return null;
 }
