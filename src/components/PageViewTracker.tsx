@@ -7,18 +7,28 @@ import { createClient } from "@/lib/supabase/client";
 const CONSENT_KEY = "paulnova:analytics-consent";
 const SESSION_KEY = "paulnova:analytics-session";
 const SESSION_TIME_KEY = "paulnova:analytics-last-seen";
+const ATTRIBUTION_KEY = "paulnova:analytics-attribution";
 const SESSION_TIMEOUT = 30 * 60 * 1000;
 
-function getSessionId() {
+function getSessionContext() {
   const now = Date.now();
   const lastSeen = Number(localStorage.getItem(SESSION_TIME_KEY) || 0);
   let id = localStorage.getItem(SESSION_KEY);
   if (!id || !lastSeen || now - lastSeen > SESSION_TIMEOUT) {
     id = crypto.randomUUID();
     localStorage.setItem(SESSION_KEY, id);
+    localStorage.removeItem(ATTRIBUTION_KEY);
   }
   localStorage.setItem(SESSION_TIME_KEY, String(now));
-  return id;
+  let attribution: ReturnType<typeof getTrafficDetails>;
+  try {
+    const saved = localStorage.getItem(ATTRIBUTION_KEY);
+    attribution = saved ? JSON.parse(saved) as ReturnType<typeof getTrafficDetails> : getTrafficDetails();
+  } catch {
+    attribution = getTrafficDetails();
+  }
+  localStorage.setItem(ATTRIBUTION_KEY, JSON.stringify(attribution));
+  return { sessionId: id, ...attribution };
 }
 
 function getTrafficDetails() {
@@ -57,8 +67,7 @@ export default function PageViewTracker() {
 
     const record = async () => {
       if (localStorage.getItem(CONSENT_KEY) !== "accepted") return;
-      const sessionId = getSessionId();
-      const { referrerHost, trafficSource, utmMedium, utmCampaign } = getTrafficDetails();
+      const { sessionId, referrerHost, trafficSource, utmMedium, utmCampaign } = getSessionContext();
       const articleMatch = pathname.match(/^\/articles\/([^/]+)$/);
       const supabase = createClient();
       await supabase.from("page_views").insert({
