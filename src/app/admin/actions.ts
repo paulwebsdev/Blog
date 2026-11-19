@@ -177,3 +177,24 @@ export async function updateNewsletterDraft(formData: FormData) {
   if (error) throw new Error("Could not update newsletter draft: " + error.message);
   redirect("/admin/newsletter?saved=1");
 }
+
+export async function saveAuthorProfile(formData: FormData) {
+  const { supabase, user } = await requireEditor();
+  const displayName = String(formData.get("display_name") ?? "").trim().slice(0, 100);
+  const authorSlug = safeSlug(String(formData.get("author_slug") ?? displayName));
+  const bio = String(formData.get("bio") ?? "").trim().slice(0, 1000);
+  const avatarUrl = String(formData.get("avatar_url") ?? "").trim();
+  const websiteUrl = String(formData.get("website_url") ?? "").trim();
+  if (displayName.length < 2 || !authorSlug) throw new Error("Enter a display name and valid author URL slug.");
+  for (const value of [avatarUrl, websiteUrl]) {
+    if (!value) continue;
+    try { const parsed = new URL(value); if (!["https:", "http:"].includes(parsed.protocol)) throw new Error(); }
+    catch { throw new Error("Profile image and website must be valid public URLs."); }
+  }
+  const { error } = await supabase.from("profiles").update({
+    display_name: displayName, author_slug: authorSlug, bio: bio || null,
+    avatar_url: avatarUrl || null, website_url: websiteUrl || null
+  }).eq("id", user.id);
+  if (error) throw new Error(error.message);
+  redirect("/admin/author?saved=1");
+}
