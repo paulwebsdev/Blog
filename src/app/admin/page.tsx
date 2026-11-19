@@ -45,6 +45,7 @@ export default async function AdminDashboard() {
             <div className="mt-3 grid gap-2">
               <DashboardLink href="/admin" title="Dashboard overview" description="Your workspace and recent activity"/>
               <DashboardLink href="/admin/articles/new" title="Create a new article" description="Write, edit and schedule stories"/>
+              <DashboardLink href="/admin/author" title="Author profile" description="Manage your public author biography and profile image"/>
               {profile.role==="admin"&&<DashboardLink href="/admin/newsletter" title="Newsletter studio" description="Prepare newsletter drafts and previews"/>}
               {profile.role==="admin"&&<DashboardLink href="/admin/subscribers" title="Subscribers" description="Review subscriber status and consent"/>}
               {profile.role==="admin"&&<DashboardLink href="/admin/analytics" title="Analytics studio" description="Visitors, article views, traffic sources and popular pages"/>}
