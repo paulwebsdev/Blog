@@ -35,8 +35,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
-  const article = await getPublicArticle(slug);
+  const [article, allArticles] = await Promise.all([getPublicArticle(slug), getPublicArticles()]);
   if (!article) notFound();
+  const related = allArticles.filter((item) => item.slug !== article.slug && item.category === article.category).slice(0, 3);
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng";
   const structuredData = {
     "@context": "https://schema.org",
