@@ -132,12 +132,13 @@ export default function PageViewTracker() {
       if (scrollable <= 0) return;
       const depth = Math.min(100, Math.round((window.scrollY / scrollable) * 100));
       maxScroll = Math.max(maxScroll, depth);
-      if (maxScroll >= 90 && maxScroll < 100) {
-        maxScroll = 100;
-        void record("scroll_depth", "90");
-      } else if (maxScroll >= 50 && maxScroll < 90) {
+      if (maxScroll >= 50 && maxScroll < 90) {
         maxScroll = 90;
         void record("scroll_depth", "50");
+      } else if (maxScroll >= 90 && maxScroll < 100) {
+        maxScroll = 100;
+        void record("scroll_depth", "50");
+        void record("scroll_depth", "90");
       }
     };
     document.addEventListener("visibilitychange", onVisibility);
