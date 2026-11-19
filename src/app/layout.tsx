@@ -3,8 +3,17 @@ import "./globals.css";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import CookieConsent from "@/components/CookieConsent";
 import PageViewTracker from "@/components/PageViewTracker";
+import SocialLinks from "@/components/SocialLinks";
+import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  let verification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.from("site_settings").select("google_site_verification").eq("id", 1).maybeSingle();
+    verification = data?.google_site_verification || verification;
+  } catch { /* The site remains renderable if settings are temporarily unavailable. */ }
+  return {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng"),
   title: { default: "PaulNova — Technology. Intelligence. Opportunities.", template: "%s | PaulNova" },
   description: "Discover technology, understand artificial intelligence, explore digital business and money, and find education and career opportunities with PaulNova.",
@@ -23,9 +32,10 @@ export const metadata: Metadata = {
     description: "Technology, AI, digital business, education and opportunities for a changing world."
   },
   robots: { index: true, follow: true },
-  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } } : {})
-};
+  ...(verification ? { verification: { google: verification } } : {})
+  };
+}
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}<GoogleAnalytics /><PageViewTracker /><CookieConsent /></body></html>;
+  return <html lang="en"><body>{children}<SocialLinks /><GoogleAnalytics /><PageViewTracker /><CookieConsent /></body></html>;
 }
