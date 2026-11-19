@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BrainCircuit, BriefcaseBusiness, Cpu, GraduationCap, Menu, Search, Sparkles, Zap } from "lucide-react";
-import { articles } from "@/lib/articles";
+import { articles, type Article } from "@/lib/articles";
 import { getPublicArticles } from "@/lib/content";
 import NewsletterForm from "@/app/newsletter/NewsletterForm";
 import AdSlot from "@/components/AdSlot";
@@ -39,7 +39,7 @@ function Header() {
   </header>;
 }
 
-function StoryCard({ article, featured = false }: { article: typeof articles[number], featured?: boolean }) {
+function StoryCard({ article, featured = false }: { article: Article, featured?: boolean }) {
   const palette = article.category === "Artificial Intelligence" ? "from-[#27215f] via-[#5146bd] to-[#9b8cff]" : article.category === "Technology" ? "from-[#063b58] via-[#087e9b] to-[#7bd5d0]" : "from-[#174a37] via-[#25856a] to-[#9ad9a9]";
   return <Link href={`/articles/${article.slug}`} className="group block overflow-hidden rounded-2xl border border-slate-100 bg-white transition hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/60">
     <div className={`article-art bg-gradient-to-br ${palette} ${featured ? "min-h-[300px] md:min-h-[390px]" : "min-h-[205px]"}`}>
@@ -60,6 +60,7 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const articles = await getPublicArticles();
   const [featured, ...latest] = articles;
+  const mostRead = [...articles].sort((a, b) => (b.views ?? 0) - (a.views ?? 0)).slice(0, 3);
   return <main>
     <Header/>
     <section className="relative overflow-hidden bg-[#f7f8fc]">
@@ -87,6 +88,7 @@ export default async function Home() {
       <div className="mb-9 flex items-end justify-between gap-4"><div><div className="eyebrow">Explore PaulNova</div><h2 className="mt-3 text-3xl font-black tracking-tight md:text-4xl">Curiosity starts here.</h2></div><span className="hidden text-sm text-slate-400 sm:block">Four areas. One bigger picture.</span></div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{categories.map((item) => { const Icon = item.icon; return <Link key={item.slug} href={`/category/${item.slug}`} className="group rounded-2xl border border-slate-100 p-6 transition hover:-translate-y-1 hover:border-violet-100 hover:shadow-lg hover:shadow-slate-100"><span className={`grid h-12 w-12 place-items-center rounded-xl ${item.color}`}><Icon size={22}/></span><h3 className="mt-5 font-extrabold text-slate-900 group-hover:text-[#635bff]">{item.name}</h3><p className="mt-2 text-xs leading-5 text-slate-500">{item.detail}</p><ArrowUpRight className="mt-5 text-slate-300 group-hover:text-[#635bff]" size={17}/></Link>})}</div>
     </section>
+    {mostRead.length > 0 && <section className="container py-16"><div className="mb-8"><div className="eyebrow">Reader favourites</div><h2 className="mt-3 text-3xl font-black tracking-tight">Most-read articles</h2><p className="mt-2 text-sm text-slate-500">Stories readers are spending time with across PaulNova.</p></div><div className="grid gap-5 md:grid-cols-3">{mostRead.map((article, index) => <div key={article.slug} className="relative"><span className="absolute -left-2 -top-3 z-10 grid h-8 w-8 place-items-center rounded-full bg-[#635bff] text-xs font-black text-white">{index + 1}</span><StoryCard article={article}/></div>)}</div></section>}
     <section id="latest" className="bg-[#f7f8fc] py-20"><div className="container">
       <div className="mb-10 flex items-end justify-between"><div><div className="eyebrow">Fresh perspectives</div><h2 className="mt-3 text-3xl font-black tracking-tight md:text-4xl">Ideas worth exploring.</h2><p className="mt-3 text-sm text-slate-500">Useful knowledge for the world taking shape around us.</p></div><Link href="/search" className="hidden items-center gap-2 text-xs font-bold text-[#635bff] sm:flex">Find an article <Search size={15}/></Link></div>
       <div className="grid gap-6 lg:grid-cols-2">{featured && <StoryCard article={featured} featured/>}<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">{latest.map((article) => <StoryCard key={article.slug} article={article}/>)}</div></div>
