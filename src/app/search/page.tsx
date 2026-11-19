@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Search, ArrowLeft, ArrowRight } from "lucide-react";
-import { getPublicArticles } from "@/lib/content";
+import { searchPublicArticles } from "@/lib/content";
 export const metadata: Metadata = { title: "Search", description: "Search PaulNova articles on technology, AI, digital business, education and careers.", robots: { index: false, follow: true } };
 type Props = { searchParams: Promise<{ q?: string; page?: string }> };
 export const dynamic = "force-dynamic";
@@ -10,8 +10,7 @@ export default async function SearchPage({ searchParams }: Props) {
   const query = q.trim().slice(0, 120);
   const requestedPage = Number.parseInt(pageValue, 10);
   const page = Number.isFinite(requestedPage) ? Math.max(1, requestedPage) : 1;
-  const articles = await getPublicArticles();
-  const results = query ? articles.filter((article) => [article.title, article.excerpt, article.category, ...article.sections.flatMap((section) => [section.heading, ...section.paragraphs])].join(" ").toLowerCase().includes(query.toLowerCase())) : [];
+  const results = query ? await searchPublicArticles(query) : [];
   const pageSize = 10;
   const pageCount = Math.max(1, Math.ceil(results.length / pageSize));
   const currentPage = Math.min(page, pageCount);
