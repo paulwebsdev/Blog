@@ -1,5 +1,4 @@
 "use server";
-
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -11,11 +10,9 @@ async function requireEditor() {
   if (!profile || !["admin", "editor"].includes(profile.role)) redirect("/admin/login?error=not-authorised");
   return { supabase, user, role: profile.role as string };
 }
-
 function safeSlug(value: string) {
   return value.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 90);
 }
-
 function parseContent(value: FormDataEntryValue | null) {
   try {
     const parsed = JSON.parse(String(value ?? "[]"));
@@ -23,7 +20,6 @@ function parseContent(value: FormDataEntryValue | null) {
     return parsed;
   } catch { throw new Error("Article content must be valid JSON: an array of sections with a heading and paragraphs."); }
 }
-
 export async function signIn(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
@@ -40,13 +36,11 @@ export async function signIn(formData: FormData) {
   }
   redirect("/admin");
 }
-
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/admin/login");
 }
-
 export async function saveArticle(formData: FormData) {
   const { supabase, user } = await requireEditor();
   const id = String(formData.get("id") ?? "").trim();
@@ -81,7 +75,6 @@ export async function saveArticle(formData: FormData) {
   if (error) throw new Error(error.message);
   redirect("/admin");
 }
-
 export async function deleteArticle(formData: FormData) {
   const { supabase } = await requireEditor();
   const id = String(formData.get("id") ?? "");
@@ -90,14 +83,12 @@ export async function deleteArticle(formData: FormData) {
   if (error) throw new Error(error.message);
   redirect("/admin");
 }
-
 async function requireAdmin() {
   const { supabase, user } = await requireEditor();
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
   if (profile?.role !== "admin") redirect("/admin?error=admin-required");
-  return { supabase };
+  return { supabase, user };
 }
-
 export async function createCategory(formData: FormData) {
   const { supabase } = await requireAdmin();
   const name = String(formData.get("name") ?? "").trim();
@@ -108,7 +99,6 @@ export async function createCategory(formData: FormData) {
   if (error) throw new Error(error.message);
   redirect("/admin");
 }
-
 export async function toggleCategory(formData: FormData) {
   const { supabase } = await requireAdmin();
   const id = String(formData.get("id") ?? "");
@@ -117,4 +107,30 @@ export async function toggleCategory(formData: FormData) {
   const { error } = await supabase.from("categories").update({ is_active: !isActive }).eq("id", id);
   if (error) throw new Error(error.message);
   redirect("/admin");
+}
+function escapeHtml(value: string) {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+export async function saveNewsletterDraft(formData: FormData) {
+  const { supabase, user } = await requireAdmin();
+  const subject = String(formData.get("subject") ?? "").trim();
+  const preview = String(formData.get("preview_text") ?? "").trim();
+  const body = String(formData.get("body") ?? "").trim();
+  if (subject.length < 3 || subject.length > 180) throw new Error("Subject must be between 3 and 180 characters.");
+  if (preview.length > 250) throw new Error("Preview text must be 250 characters or fewer.");
+  if (body.length < 10 || body.length > 30000) throw new Error("Newsletter content must be between 10 and 30,000 characters.");
+  const contentHtml = body.split(/\r?\n\s*\r?\n/).map((paragraph) => "<p>" + escapeHtml(paragraph).replace(/\r?\n/g, "<br>") + "</p>").join("\n");
+  const { error } = await supabase.from("newsletter_campaigns").insert({
+    subject, preview_text: preview || null, content_html: contentHtml, status: "draft", created_by: user.id
+  });
+  if (error) throw new Error("Could not save newsletter draft: " + error.message);
+  redirect("/admin/newsletter?saved=1");
+}
+export async function deleteNewsletterDraft(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  if (!/^[0-9a-f-]{36}$/i.test(id)) throw new Error("Invalid campaign ID.");
+  const { error } = await supabase.from("newsletter_campaigns").delete().eq("id", id).eq("status", "draft");
+  if (error) throw new Error("Could not delete this draft: " + error.message);
+  redirect("/admin/newsletter?deleted=1");
 }
