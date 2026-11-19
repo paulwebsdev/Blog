@@ -191,10 +191,10 @@ export async function saveAuthorProfile(formData: FormData) {
     try { const parsed = new URL(value); if (!["https:", "http:"].includes(parsed.protocol)) throw new Error(); }
     catch { throw new Error("Profile image and website must be valid public URLs."); }
   }
-  const { error } = await supabase.from("profiles").update({
-    display_name: displayName, author_slug: authorSlug, bio: bio || null,
-    avatar_url: avatarUrl || null, website_url: websiteUrl || null
-  }).eq("id", user.id);
+  const { error } = await supabase.rpc("update_author_profile", {
+    p_display_name: displayName, p_author_slug: authorSlug, p_bio: bio,
+    p_avatar_url: avatarUrl, p_website_url: websiteUrl
+  });
   if (error) throw new Error(error.message);
   redirect("/admin/author?saved=1");
 }
