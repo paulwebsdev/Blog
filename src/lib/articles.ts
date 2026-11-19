@@ -20,6 +20,8 @@ export type Article = {
   seoTitle: string;
   seoDescription: string;
   sections: ArticleSection[];
+  sources?: { title: string; url: string }[];
+  correctionNote?: string;
 };
 
 export const articles: Article[] = [
