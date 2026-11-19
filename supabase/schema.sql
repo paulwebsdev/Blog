@@ -147,9 +147,11 @@ end $;
 create table if not exists public.site_settings (
   id integer primary key default 1 check (id = 1),
   social_links jsonb not null default '{}'::jsonb,
+  logo_url text,
   google_site_verification text,
   updated_at timestamptz not null default now()
 );
+alter table public.site_settings add column if not exists logo_url text;
 alter table public.site_settings enable row level security;
 drop policy if exists "Public can read site settings" on public.site_settings;
 create policy "Public can read site settings" on public.site_settings for select to anon, authenticated using (true);
