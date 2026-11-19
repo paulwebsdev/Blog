@@ -31,7 +31,7 @@ export default async function AdminDashboard() {
             <h3 className="text-sm font-extrabold text-slate-800">Public website pages</h3>
             <div className="mt-3 grid grid-cols-2 gap-2">
               {[
-                ["Home","/"],["About","/about"],["Advertise & partnerships","/advertise"],["Bookmarks","/bookmarks"],["Contact","/contact"],["Disclaimer","/disclaimer"],["Editorial policy","/editorial-policy"],["FAQ","/faq"],["Privacy policy","/privacy"],["Search","/search"],["Terms of use","/terms"]
+                ["Home","/"],["About","/about"],["Advertise & partnerships","/advertise"],["Bookmarks","/bookmarks"],["Contact","/contact"],["Corrections","/corrections"],["Disclaimer","/disclaimer"],["Editorial policy","/editorial-policy"],["FAQ","/faq"],["Privacy policy","/privacy"],["Search","/search"],["Terms of use","/terms"]
               ].map(([label,href])=><Link key={href} href={href} target="_blank" rel="noreferrer" className="rounded-xl border border-slate-100 px-3 py-3 text-xs font-semibold text-slate-600 transition hover:border-[#635bff]/40 hover:bg-[#635bff]/5 hover:text-[#5148e5]">{label}<span className="float-right text-slate-300">↗</span></Link>)}
             </div>
             <div className="mt-4 rounded-xl bg-slate-50 p-3">
@@ -49,6 +49,7 @@ export default async function AdminDashboard() {
               {profile.role==="admin"&&<DashboardLink href="/admin/site-settings" title="Site settings & social profiles" description="Add Facebook and other social links; connect Google Search Console"/>}
               {profile.role==="admin"&&<DashboardLink href="/admin/newsletter" title="Newsletter studio" description="Prepare newsletter drafts and previews"/>}
               {profile.role==="admin"&&<DashboardLink href="/admin/subscribers" title="Subscribers" description="Review subscriber status and consent"/>}
+              {profile.role==="admin"&&<DashboardLink href="/admin/backup" title="Backup & data export" description="Download a protected snapshot of PaulNova records"/>}
               {profile.role==="admin"&&<DashboardLink href="/admin/analytics" title="Analytics studio" description="Visitors, article views, traffic sources and popular pages"/>}
               {profile.role==="admin"&&<DashboardLink href="/admin/monetization" title="Monetization studio" description="Ads, advertisers, sponsors, affiliates and revenue"/>}
             </div>
