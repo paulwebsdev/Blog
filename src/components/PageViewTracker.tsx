@@ -100,7 +100,8 @@ export default function PageViewTracker() {
     let activeSince = Date.now();
     let accumulatedSeconds = 0;
     let flushedSeconds = 0;
-    let maxScroll = 0;
+    let sent50Percent = false;
+    let sent90Percent = false;
     const flushReadingTime = () => {
       if (!articleSlug || !consented()) return;
       if (document.visibilityState === "visible") accumulatedSeconds += Math.max(0, Math.round((Date.now() - activeSince) / 1000));
@@ -131,13 +132,12 @@ export default function PageViewTracker() {
       const scrollable = document.documentElement.scrollHeight - window.innerHeight;
       if (scrollable <= 0) return;
       const depth = Math.min(100, Math.round((window.scrollY / scrollable) * 100));
-      maxScroll = Math.max(maxScroll, depth);
-      if (maxScroll >= 50 && maxScroll < 90) {
-        maxScroll = 90;
+      if (depth >= 50 && !sent50Percent) {
+        sent50Percent = true;
         void record("scroll_depth", "50");
-      } else if (maxScroll >= 90 && maxScroll < 100) {
-        maxScroll = 100;
-        void record("scroll_depth", "50");
+      }
+      if (depth >= 90 && !sent90Percent) {
+        sent90Percent = true;
         void record("scroll_depth", "90");
       }
     };
