@@ -1,0 +1,9 @@
+import type { Metadata } from "next";
+import InfoPage from "@/components/InfoPage";
+export const metadata: Metadata = { title: "Write for PaulNova", description: "Pitch useful, original stories and expert perspectives to PaulNova." };
+export default function WriteForUsPage() { return <InfoPage eyebrow="Share your expertise" title="Write for PaulNova." intro="We are interested in clear, original and genuinely useful perspectives that help readers understand technology and discover opportunities." sections={[
+{heading:"Topics we consider",bullets:["Technology, apps, software and digital skills.","Artificial intelligence, practical use cases and responsible innovation.","Digital business, entrepreneurship and personal finance education.","Education, learning resources, jobs and career development."]},
+{heading:"What to send",bullets:["A short introduction and relevant experience.","A proposed headline, summary and outline.","Why the story matters to a global audience.","Links to published work or relevant expertise, if available.","Any potential conflicts of interest or commercial affiliations."]},
+{heading:"Our expectations",paragraphs:["Pitches should be original, accurate, well sourced and written for readers rather than search engines. We do not accept plagiarised, misleading or undisclosed promotional submissions. Please do not send confidential or sensitive personal information."]},
+{heading:"Submit a pitch",paragraphs:["Email contact.paulnova@gmail.com with the subject “Writing pitch”. Please wait for an editorial response before preparing a full article. A submission does not guarantee acceptance or payment; any terms will be discussed and agreed in writing before publication."]}
+]}/> }
