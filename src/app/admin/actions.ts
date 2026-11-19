@@ -78,9 +78,28 @@ export async function saveArticle(formData: FormData) {
     seo_description: seoDescription || excerpt, status, published_at: publishedAt,
     author_id: existing?.author_id || user.id, updated_at: new Date().toISOString()
   };
-  const query = id ? supabase.from("articles").update(payload).eq("id", id) : supabase.from("articles").insert(payload);
-  const { error } = await query;
-  if (error) throw new Error(error.message);
+  const query = id
+    ? supabase.from("articles").update(payload).eq("id", id).select("id").single()
+    : supabase.from("articles").insert(payload).select("id").single();
+  const { data: saved, error } = await query;
+  if (error || !saved) throw new Error(error?.message || "Article could not be saved.");
+
+  const tagNames = [...new Set(String(formData.get("tags") ?? "").split(",").map((tag) => tag.trim()).filter(Boolean).slice(0, 8))];
+  const tagIds: string[] = [];
+  for (const name of tagNames) {
+    const tagSlug = safeSlug(name);
+    if (!tagSlug) continue;
+    const { data: tag, error: tagError } = await supabase.from("tags")
+      .upsert({ name: name.slice(0, 60), slug: tagSlug }, { onConflict: "slug" }).select("id").single();
+    if (tagError || !tag) throw new Error(tagError?.message || "Could not save article topic tags.");
+    tagIds.push(tag.id);
+  }
+  const { error: clearTagsError } = await supabase.from("article_tags").delete().eq("article_id", saved.id);
+  if (clearTagsError) throw new Error(clearTagsError.message);
+  if (tagIds.length) {
+    const { error: linkError } = await supabase.from("article_tags").insert(tagIds.map((tag_id) => ({ article_id: saved.id, tag_id })));
+    if (linkError) throw new Error(linkError.message);
+  }
   redirect("/admin");
 }
 export async function deleteArticle(formData: FormData) {
