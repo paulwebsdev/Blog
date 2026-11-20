@@ -1,7 +1,6 @@
 "use server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { brevoRequest } from "@/lib/brevo";
 
 async function requireEditor() {
   const supabase = await createClient();
@@ -266,58 +265,30 @@ export async function saveSiteSettings(formData: FormData) {
 }
 
 
-async function ensurePaulNovaBrevoList(): Promise<number> {
-  const configured = Number(process.env.BREVO_LIST_ID);
-  if (Number.isInteger(configured) && configured > 0) return configured;
-  const existing = await brevoRequest<{ lists?: Array<{ id: number; name: string }> }>("/contacts/lists?limit=50&offset=0&sort=desc");
-  const match = (existing.lists ?? []).find((list) => list.name.trim().toLowerCase() === "paulnova newsletter");
-  if (match) return match.id;
-  const created = await brevoRequest<{ id: number }>("/contacts/lists", {
-    method: "POST",
-    body: JSON.stringify({ name: "PaulNova Newsletter", folderId: 1 })
-  });
-  if (!created.id) throw new Error("Brevo did not return the new PaulNova Newsletter list ID.");
-  return created.id;
-}
+export async function checkResendConnection() {
+  await requireAdmin();
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) throw new Error("RESEND_API_KEY is not configured on the Render service.");
 
-export async function sendNewsletterTest(formData: FormData) {
-  const { supabase, user } = await requireAdmin();
-  const id = String(formData.get("id") ?? "").trim();
-  if (!/^[0-9a-f-]{36}$/i.test(id)) throw new Error("Invalid campaign ID.");
-  if (!user.email) throw new Error("Your admin account has no email address for the test.");
-  if (!process.env.BREVO_API_KEY) throw new Error("Brevo API key is not configured on the server.");
-  const senderEmail = String(process.env.BREVO_SENDER_EMAIL ?? "").trim();
-  const senderName = String(process.env.BREVO_SENDER_NAME ?? "PaulNova").trim();
-  const replyTo = String(process.env.BREVO_REPLY_TO ?? senderEmail).trim();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(senderEmail)) throw new Error("Set BREVO_SENDER_EMAIL to an active, verified Brevo sender.");
-  const listId = await ensurePaulNovaBrevoList();
-  const { data: campaign, error } = await supabase.from("newsletter_campaigns")
-    .select("id,subject,preview_text,content_html,status,brevo_campaign_id").eq("id", id).maybeSingle();
-  if (error || !campaign) throw new Error("Newsletter campaign not found.");
-  if (campaign.status !== "draft") throw new Error("Only draft campaigns can be test-sent.");
-  let brevoCampaignId = campaign.brevo_campaign_id as number | null;
-  if (!brevoCampaignId) {
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng").replace(/\/$/, "");
-    const htmlContent = `<!doctype html><html><body style="margin:0;background:#f5f6fb;font-family:Arial,sans-serif;color:#172033"><div style="max-width:640px;margin:0 auto;padding:32px 16px"><div style="background:#fff;border-radius:18px;padding:32px"><p style="font-size:13px;font-weight:700;letter-spacing:2px;color:#635bff">PAULNOVA</p><h1 style="font-size:26px;line-height:1.25;margin:18px 0;color:#172033">${escapeHtml(campaign.subject)}</h1>${campaign.content_html}<p style="margin-top:32px;padding-top:20px;border-top:1px solid #e5e7eb;font-size:12px;line-height:1.7;color:#64748b">Technology. Intelligence. Opportunities.<br/><a href="${siteUrl}" style="color:#635bff">Visit PaulNova</a> · <a href="{{ unsubscribe }}" style="color:#64748b">Unsubscribe</a></p></div></div></body></html>`;
-    const created = await brevoRequest<{ id: number }>("/emailCampaigns", { method: "POST", body: JSON.stringify({
-      name: `PaulNova TEST — ${campaign.subject.slice(0, 90)} — ${new Date().toISOString()}`,
-      subject: campaign.subject, previewText: campaign.preview_text || undefined,
-      sender: { name: senderName, email: senderEmail }, replyTo,
-      recipients: { listIds: [listId] }, htmlContent, tag: "PaulNova-Test"
-    })});
-    if (!created.id) throw new Error("Brevo did not create the test campaign.");
-    brevoCampaignId = created.id;
-    const { error: saveError } = await supabase.from("newsletter_campaigns")
-      .update({ brevo_campaign_id: brevoCampaignId, updated_at: new Date().toISOString() }).eq("id", id);
-    if (saveError) throw new Error("Test campaign was created in Brevo but its ID could not be saved.");
-  }
-  await brevoRequest(`/emailCampaigns/${brevoCampaignId}/sendTest`, {
-    method: "POST", body: JSON.stringify({ emailTo: [user.email] })
+  const response = await fetch("https://api.resend.com/domains", {
+    method: "GET",
+    headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" },
+    cache: "no-store"
   });
-  redirect("/admin/newsletter?tested=1");
+  const payload = await response.json().catch(() => ({})) as {
+    data?: Array<{ id: string; name: string; status: string }>;
+    message?: string;
+  };
+  if (!response.ok) {
+    throw new Error("Resend connection failed (" + response.status + "): " + (payload.message || "The API rejected the request."));
+  }
+  const domains = Array.isArray(payload.data) ? payload.data : [];
+  const verified = domains.some((domain) => String(domain.status).toLowerCase() === "verified");
+  const result = verified ? "verified" : domains.length ? "domain-pending" : "no-domain";
+  redirect("/admin/newsletter?resend=" + result);
 }
 
 export async function sendNewsletterCampaign(_formData: FormData) {
   await requireAdmin();
-  throw new Error("Bulk newsletter sending is temporarily disabled until Brevo unsubscribe suppression and consent synchronization are fully verified.");
+  throw new Error("Newsletter sending is not enabled yet. First verify the sending domain and complete the consent-safe Resend audience sync.");
 }
