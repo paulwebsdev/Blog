@@ -77,6 +77,7 @@ export default async function ArticlePage({ params }: Props) {
   return (
     <main className="min-h-screen bg-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData).replace(/</g, "\\u003c") }} />
       <header className="border-b border-slate-100">
         <div className="container flex h-[76px] items-center justify-between">
           <SiteLogo/>
