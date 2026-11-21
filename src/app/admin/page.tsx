@@ -55,6 +55,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
               {profile.role==="admin"&&<DashboardLink href="/admin/backup" title="Backup & data export" description="Download a protected snapshot of PaulNova records"/>}
               {profile.role==="admin"&&<DashboardLink href="/admin/analytics" title="Analytics studio" description="Visitors, article views, traffic sources and popular pages"/>}
               {profile.role==="admin"&&<DashboardLink href="/admin/monetization" title="Monetization studio" description="Ads, advertisers, sponsors, affiliates and revenue"/>}
+              {profile.role==="admin"&&<DashboardLink href="/admin/adsense" title="Google AdSense readiness" description="Site checklist, verification, publisher ID and ads.txt setup"/>}
             </div>
             <div className="mt-4 rounded-xl border border-slate-100 p-3">
               <h4 className="text-xs font-extrabold text-slate-700">Article management</h4>
