@@ -184,6 +184,42 @@ export async function saveArticle(formData: FormData) {
   }
   redirect("/admin?publication=" + (status === "published" ? "published" : status) + (notificationSummary ? "&email=" + notificationSummary : ""));
 }
+export async function publishArticleNow(formData: FormData) {
+  const { supabase } = await requireEditor();
+  const id = String(formData.get("id") ?? "").trim();
+  if (!/^[0-9a-f-]{36}$/i.test(id)) throw new Error("Invalid article ID.");
+  const { data: article, error: readError } = await supabase.from("articles")
+    .select("id,status,published_at").eq("id", id).maybeSingle();
+  if (readError || !article) throw new Error("Article could not be found.");
+  if (article.status === "published") redirect("/admin");
+  const { error } = await supabase.from("articles").update({
+    status: "published",
+    published_at: article.published_at || new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }).eq("id", id);
+  if (error) throw new Error("Could not publish article: " + error.message);
+  const result = await notifySubscribersOfPublishedArticle(supabase, id);
+  const email = result.reason === "complete" ? "notifications-sent" :
+    result.reason === "no-consented-subscribers" ? "no-subscribers" :
+    result.failed ? "notifications-partial" : "notifications-not-configured";
+  redirect("/admin?publication=published&email=" + email);
+}
+
+export async function unpublishArticle(formData: FormData) {
+  const { supabase } = await requireEditor();
+  const id = String(formData.get("id") ?? "").trim();
+  if (!/^[0-9a-f-]{36}$/i.test(id)) throw new Error("Invalid article ID.");
+  const { data: article, error: readError } = await supabase.from("articles")
+    .select("id,status").eq("id", id).maybeSingle();
+  if (readError || !article) throw new Error("Article could not be found.");
+  if (article.status !== "published") redirect("/admin");
+  const { error } = await supabase.from("articles").update({
+    status: "draft", published_at: null, updated_at: new Date().toISOString()
+  }).eq("id", id);
+  if (error) throw new Error("Could not unpublish article: " + error.message);
+  redirect("/admin?publication=unpublished");
+}
+
 export async function deleteArticle(formData: FormData) {
   const { supabase } = await requireEditor();
   const id = String(formData.get("id") ?? "");
