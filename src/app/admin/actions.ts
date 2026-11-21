@@ -339,7 +339,7 @@ export async function saveSiteSettings(formData: FormData) {
 export async function checkResendConnection() {
   await requireAdmin();
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) throw new Error("RESEND_API_KEY is not configured on the Render service.");
+  if (!apiKey) redirect("/admin/newsletter?resend=missing-key");
 
   const response = await fetch("https://api.resend.com/domains", {
     method: "GET",
