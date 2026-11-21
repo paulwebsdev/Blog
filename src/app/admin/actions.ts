@@ -41,6 +41,70 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect("/admin/login");
 }
+
+async function notifySubscribersOfPublishedArticle(supabase: Awaited<ReturnType<typeof createClient>>, articleId: string) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return { sent: 0, failed: 0, reason: "missing-resend-key" };
+  const [{ data: article, error: articleError }, { data: subscribers, error: subscriberError }] = await Promise.all([
+    supabase.from("articles").select("title,slug,excerpt").eq("id", articleId).single(),
+    supabase.from("subscribers").select("id,email,unsubscribe_token").eq("status", "active").not("consent_at", "is", null).is("unsubscribed_at", null)
+  ]);
+  if (articleError || !article) return { sent: 0, failed: 0, reason: "article-unavailable" };
+  if (subscriberError) return { sent: 0, failed: 0, reason: "subscriber-list-unavailable" };
+  if (!subscribers?.length) return { sent: 0, failed: 0, reason: "no-consented-subscribers" };
+
+  const rows = subscribers.map((subscriber) => ({ article_id: articleId, subscriber_id: subscriber.id, status: "pending" }));
+  const { error: queueError } = await supabase.from("article_notification_deliveries")
+    .upsert(rows, { onConflict: "article_id,subscriber_id", ignoreDuplicates: true });
+  if (queueError) return { sent: 0, failed: subscribers.length, reason: "queue-failed" };
+
+  const { data: pending, error: pendingError } = await supabase.from("article_notification_deliveries")
+    .select("id,subscriber_id").eq("article_id", articleId).eq("status", "pending");
+  if (pendingError) return { sent: 0, failed: subscribers.length, reason: "queue-read-failed" };
+
+  let sent = 0;
+  let failed = 0;
+  const byId = new Map(subscribers.map((subscriber) => [subscriber.id, subscriber]));
+  const escapeEmail = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  for (const delivery of pending ?? []) {
+    const subscriber = byId.get(delivery.subscriber_id);
+    if (!subscriber) continue;
+    const { data: claimed, error: claimError } = await supabase.from("article_notification_deliveries")
+      .update({ status: "sending", error_message: null }).eq("id", delivery.id).eq("status", "pending").select("id").maybeSingle();
+    if (claimError || !claimed) continue;
+    const articleUrl = "https://paulnova.name.ng/articles/" + encodeURIComponent(article.slug);
+    const unsubscribeUrl = "https://paulnova.name.ng/newsletter/unsubscribe?token=" + encodeURIComponent(subscriber.unsubscribe_token);
+    const subject = "New on PaulNova: " + article.title;
+    const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeEmail(subject)}</title></head><body style="margin:0;background:#f7f8fc;font-family:Arial,Helvetica,sans-serif;color:#172033"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:28px 12px"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#fff;border-radius:18px;padding:32px"><tr><td><p style="font-size:24px;font-weight:800;margin:0 0 24px">Paul<span style="color:#635bff">Nova</span></p><p style="font-size:12px;font-weight:700;letter-spacing:2px;color:#635bff;text-transform:uppercase">Technology. Intelligence. Opportunities.</p><h1 style="font-size:26px;line-height:1.25;margin:12px 0 16px">${escapeEmail(article.title)}</h1><p style="font-size:16px;line-height:1.7;color:#526078">${escapeEmail(article.excerpt)}</p><p style="margin:28px 0"><a href="${articleUrl}" style="display:inline-block;background:#635bff;color:#fff;text-decoration:none;font-weight:700;padding:14px 22px;border-radius:999px">Read article</a></p><hr style="border:0;border-top:1px solid #e8ebf2;margin:28px 0"><p style="font-size:12px;line-height:1.6;color:#7b8496">You received this email because you subscribed to PaulNova updates. <a href="${unsubscribeUrl}" style="color:#635bff">Unsubscribe</a>.</p><p style="font-size:12px;color:#9aa2b1">PaulNova · Technology. Intelligence. Opportunities.</p></td></tr></table></td></tr></table></body></html>`;
+    try {
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json", "Idempotency-Key": "paulnova-article-" + articleId + "-subscriber-" + subscriber.id },
+        body: JSON.stringify({
+          from: "PaulNova <newsletter@paulnova.name.ng>",
+          to: [subscriber.email],
+          reply_to: "contact.paulnova@gmail.com",
+          subject,
+          html,
+          headers: { "List-Unsubscribe": "<" + unsubscribeUrl + ">" }
+        }),
+        cache: "no-store"
+      });
+      const result = await response.json().catch(() => ({})) as { id?: string; message?: string };
+      if (!response.ok || !result.id) throw new Error(result.message || "Resend rejected the message.");
+      const { error: updateError } = await supabase.from("article_notification_deliveries")
+        .update({ status: "sent", resend_email_id: result.id, sent_at: new Date().toISOString(), error_message: null }).eq("id", delivery.id);
+      if (updateError) throw new Error("Email accepted but delivery status could not be saved.");
+      sent++;
+    } catch (error) {
+      failed++;
+      await supabase.from("article_notification_deliveries")
+        .update({ status: "failed", error_message: String(error).slice(0, 500) }).eq("id", delivery.id);
+    }
+  }
+  return { sent, failed, reason: failed ? "some-failed" : "complete" };
+}
+
 export async function saveArticle(formData: FormData) {
   const { supabase, user } = await requireEditor();
   const id = String(formData.get("id") ?? "").trim();
@@ -73,9 +137,9 @@ export async function saveArticle(formData: FormData) {
     if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Image URL must use HTTPS or HTTP.");
     if (!imageAlt) redirect(id ? "/admin/articles/" + id + "?error=image-alt-required" : "/admin/articles/new?error=image-alt-required");
   }
-  let existing: { published_at: string | null; author_id: string | null } | null = null;
+  let existing: { published_at: string | null; author_id: string | null; status: string } | null = null;
   if (id) {
-    const { data, error } = await supabase.from("articles").select("published_at,author_id").eq("id", id).maybeSingle();
+    const { data, error } = await supabase.from("articles").select("published_at,author_id,status").eq("id", id).maybeSingle();
     if (error || !data) throw new Error("The article could not be found or accessed.");
     existing = data;
   }
@@ -111,7 +175,14 @@ export async function saveArticle(formData: FormData) {
     const { error: linkError } = await supabase.from("article_tags").insert(tagIds.map((tag_id) => ({ article_id: saved.id, tag_id })));
     if (linkError) throw new Error(linkError.message);
   }
-  redirect("/admin");
+  let notificationSummary = "";
+  if (status === "published" && (!existing || existing.status !== "published")) {
+    const result = await notifySubscribersOfPublishedArticle(supabase, saved.id);
+    notificationSummary = result.reason === "complete" ? "notifications-sent" :
+      result.reason === "no-consented-subscribers" ? "no-subscribers" :
+      result.failed ? "notifications-partial" : "notifications-not-configured";
+  }
+  redirect("/admin?publication=" + (status === "published" ? "published" : status) + (notificationSummary ? "&email=" + notificationSummary : ""));
 }
 export async function deleteArticle(formData: FormData) {
   const { supabase } = await requireEditor();
