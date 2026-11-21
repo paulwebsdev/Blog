@@ -22,8 +22,8 @@ export default async function AdSenseReadinessPage() {
   const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() ?? "";
   const adsEnabled = process.env.NEXT_PUBLIC_ADSENSE_ENABLE === "true";
   const verification = settings?.google_site_verification || process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
-  const validPublisher = /^pub-\\d{16}$/.test(publisherId);
-  const validClient = /^ca-pub-\\d{16}$/.test(clientId);
+  const validPublisher = /^pub-\d{16}$/.test(publisherId);
+  const validClient = /^ca-pub-\d{16}$/.test(clientId);
   const publishedCount = articles?.length ?? 0;
   const imageCount = articles?.filter((item) => Boolean(item.image_url)).length ?? 0;
 
