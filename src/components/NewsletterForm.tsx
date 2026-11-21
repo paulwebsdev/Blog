@@ -2,7 +2,9 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
-import { newsletterInitialState, subscribeToNewsletter } from "@/app/newsletter/actions";
+import { subscribeToNewsletter } from "@/app/newsletter/actions";
+
+const newsletterInitialState = { status: "idle" as const, message: "" };
 
 export default function NewsletterForm() {
   const [state, action, pending] = useActionState(subscribeToNewsletter, newsletterInitialState);
