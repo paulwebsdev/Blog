@@ -51,6 +51,12 @@ export default async function ArticlePage({ params }: Props) {
   const { data: articleRow } = await supabase.from("articles").select("id").eq("slug", slug).maybeSingle();
   const { data: sponsorship } = articleRow ? await supabase.from("sponsored_posts").select("sponsor_name,disclosure_text").eq("article_id", articleRow.id).eq("status","active").maybeSingle() : {data:null};
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng";
+  const categorySlug = article.category === "Artificial Intelligence" ? "artificial-intelligence" : article.category === "Business & Money" ? "business-money" : article.category === "Education & Careers" ? "education-careers" : "technology";
+  const breadcrumbData = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: base },
+    { "@type": "ListItem", position: 2, name: article.category, item: `${base}/category/${categorySlug}` },
+    { "@type": "ListItem", position: 3, name: article.title, item: `${base}/articles/${article.slug}` }
+  ] };
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -78,13 +84,13 @@ export default async function ArticlePage({ params }: Props) {
         </div>
       </header>
       <article className="container max-w-3xl py-12 md:py-20">
-        <Link href="/#topics" className="text-xs font-bold uppercase tracking-widest text-[#635bff]">{article.category}</Link>
+        <nav aria-label="Breadcrumb" className="mb-7 flex flex-wrap items-center gap-2 text-xs text-slate-400"><Link href="/" className="hover:text-[#635bff]">Home</Link><span>/</span><Link href={"/category/" + categorySlug} className="hover:text-[#635bff]">{article.category}</Link><span>/</span><span className="max-w-[260px] truncate text-slate-600" aria-current="page">{article.title}</span></nav>
         {sponsorship && <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950"><p className="font-extrabold">Sponsored content · {sponsorship.sponsor_name}</p><p className="mt-1 leading-6">{sponsorship.disclosure_text}</p></div>}
         <h1 className="mt-5 text-4xl font-black leading-tight tracking-tight text-[#101828] md:text-6xl">{article.title}</h1>
         <p className="mt-6 text-lg leading-8 text-slate-500">{article.excerpt}</p>
         <div className="mt-7 flex flex-wrap items-center gap-3 border-b border-slate-100 pb-8 text-xs text-slate-400">
           {article.authorSlug ? <Link href={`/authors/${article.authorSlug}`} className="font-semibold text-slate-700 hover:text-[#635bff]">{article.author}</Link> : <span className="font-semibold text-slate-700">{article.author}</span>}<span>·</span>
-          <time dateTime={article.publishedAt}>{new Date(article.publishedAt).toLocaleDateString("en", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })}</time><span>·</span>
+          <time dateTime={article.publishedAt}>{new Date(article.publishedAt).toLocaleDateString("en", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })}</time>{article.updatedAt && new Date(article.updatedAt).getTime() > new Date(article.publishedAt).getTime() && <><span>·</span><span>Updated <time dateTime={article.updatedAt}>{new Date(article.updatedAt).toLocaleDateString("en", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" })}</time></span></>}<span>·</span>
           <span className="inline-flex items-center gap-1"><Clock3 size={13}/>{article.readTime}</span><div className="flex flex-wrap gap-2 sm:ml-auto"><BookmarkButton slug={article.slug}/><ShareArticle title={article.title}/></div>
         </div>
         {article.imageUrl && <img src={article.imageUrl} alt={article.imageAlt || article.title} className="mt-9 max-h-[440px] w-full rounded-2xl object-cover" loading="eager" />}
