@@ -16,13 +16,12 @@ export default async function SeoDashboardPage() {
     supabase.from("articles").select("*", { count: "exact", head: true }).eq("status", "published")
   ]);
   const published = (articles ?? []).filter((article) => article.status === "published");
-  const missingDescription = published.filter((article) => !(article.seo_description || "").trim() && !(article.title || "").trim());
   const missingImageAlt = published.filter((article) => article.image_url && !(article.image_alt || "").trim());
   const missingImage = published.filter((article) => !article.image_url);
   const checks = [
     { label: "XML sitemap is generated automatically", detail: "Google can discover public article URLs through the sitemap.", href: "/sitemap.xml", action: "View sitemap" },
     { label: "Robots instructions are published", detail: "Public pages are crawlable while admin and private utility routes are disallowed.", href: "/robots.txt", action: "View robots.txt" },
-    { label: "Article canonical URLs and metadata", detail: "Each article page outputs its own canonical URL, title, description and social preview metadata.", href: "/articles", action: "Browse articles" },
+    { label: "Article canonical URLs and metadata", detail: "Each article page outputs its own canonical URL, title, description and social preview metadata.", href: "/", action: "Browse articles" },
     { label: "Article structured data", detail: "Public articles include Article and BreadcrumbList JSON-LD with author, dates, topics and publisher.", href: "https://search.google.com/test/rich-results", action: "Test structured data" }
   ];
 
