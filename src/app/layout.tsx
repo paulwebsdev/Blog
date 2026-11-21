@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import AdSenseScript from "@/components/AdSenseScript";
 import CookieConsent from "@/components/CookieConsent";
 import NewsletterPopup from "@/components/NewsletterPopup";
 import PageViewTracker from "@/components/PageViewTracker";
@@ -46,5 +47,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}<SiteStructuredData /><SocialLinks /><GoogleAnalytics /><PageViewTracker /><CookieConsent /><NewsletterPopup /></body></html>;
+  return <html lang="en"><body>{children}<SiteStructuredData /><SocialLinks /><GoogleAnalytics /><AdSenseScript /><PageViewTracker /><CookieConsent /><NewsletterPopup /></body></html>;
 }
