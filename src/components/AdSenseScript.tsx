@@ -9,7 +9,7 @@ import Script from "next/script";
 export default function AdSenseScript() {
   const client = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
   const enabled = process.env.NEXT_PUBLIC_ADSENSE_ENABLE === "true";
-  if (!enabled || !client || !/^ca-pub-\\d{16}$/.test(client)) return null;
+  if (!enabled || !client || !/^ca-pub-\d{16}$/.test(client)) return null;
   return <Script
     id="paulnova-adsense"
     async
