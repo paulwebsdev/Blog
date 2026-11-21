@@ -71,7 +71,7 @@ export default async function ArticlePage({ params }: Props) {
     inLanguage: "en",
     articleSection: article.category,
     keywords: article.tags?.map((tag) => tag.name),
-    wordCount: article.sections.flatMap((section) => section.paragraphs ?? []).join(" ").split(/\\s+/).filter(Boolean).length,
+    wordCount: article.sections.flatMap((section) => section.paragraphs ?? []).join(" ").split(/\s+/).filter(Boolean).length,
     isAccessibleForFree: true,
     mainEntityOfPage: { "@type": "WebPage", "@id": `${base}/articles/${article.slug}` },
     image: article.imageUrl ? [article.imageUrl] : undefined
