@@ -2,8 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { signOut, createCategory, toggleCategory, publishArticleNow, unpublishArticle } from "@/app/admin/actions";
+import FacebookShareCard from "./facebook-share-card";
 export const dynamic = "force-dynamic";
-export default async function AdminDashboard({ searchParams }: { searchParams: Promise<{ publication?: string; email?: string }> }) {
+export default async function AdminDashboard({ searchParams }: { searchParams: Promise<{ publication?: string; email?: string; articleId?: string }> }) {
   const params = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -18,9 +19,13 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
     profile.role === "admin" ? supabase.from("categories").select("id,name,slug,description,is_active").order("name") : supabase.from("categories").select("id,name,slug,description,is_active").eq("is_active",true).order("name"),
     profile.role === "admin" ? supabase.from("subscribers").select("*", { count: "exact", head: true }).eq("status","active") : Promise.resolve({count:0})
   ]);
+  const { data: justPublished } = params.publication === "published" && params.articleId
+    ? await supabase.from("articles").select("title,excerpt,slug,image_url").eq("id", params.articleId).eq("status", "published").maybeSingle()
+    : { data: null };
   return <main className="min-h-screen bg-[#f7f8fc]">
     <header className="border-b border-slate-100 bg-white"><div className="container flex min-h-[76px] items-center justify-between gap-4"><Link href="/" className="text-2xl font-black tracking-tight">Paul<span className="text-[#635bff]">Nova</span><span className="ml-3 text-xs font-semibold text-slate-400">STUDIO</span></Link><form action={signOut}><button className="rounded-full border border-slate-200 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50">Sign out</button></form></div></header>
     <section className="container py-10">
+      {justPublished && <FacebookShareCard title={justPublished.title} excerpt={justPublished.excerpt} slug={justPublished.slug} imageUrl={justPublished.image_url} />}
       {params.publication === "published" && <div role="status" className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900"><strong>Article published.</strong> {params.email === "notifications-sent" ? "New-post emails were accepted by Resend." : params.email === "no-subscribers" ? "No emails were sent because there are no consented active subscribers yet." : params.email === "notifications-partial" ? "Some subscriber emails could not be sent. Check the notification delivery records before retrying." : params.email === "notifications-not-configured" ? "Email notifications could not start. Check the Resend API key and subscriber access." : "Email notification status was not requested for this save."}</div>}
       <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow">Editorial workspace</p><h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900">Good to see you, {profile.display_name || "Editor"}.</h1><p className="mt-2 text-sm text-slate-500">Manage stories and keep PaulNova up to date.</p></div><Link href="/admin/articles/new" className="rounded-full bg-[#635bff] px-5 py-3 text-sm font-bold text-white hover:bg-[#5148e5]">＋ New article</Link></div>
       <div className="mt-8 grid gap-4 sm:grid-cols-3"><Stat label="All articles" value={total ?? 0}/><Stat label="Published" value={published ?? 0}/><Stat label="Drafts" value={drafts ?? 0}/></div>
