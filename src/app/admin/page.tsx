@@ -57,6 +57,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
               {profile.role==="admin"&&<DashboardLink href="/admin/monetization" title="Monetization studio" description="Ads, advertisers, sponsors, affiliates and revenue"/>}
               {profile.role==="admin"&&<DashboardLink href="/admin/adsense" title="Google AdSense readiness" description="Site checklist, verification, publisher ID and ads.txt setup"/>}
               {profile.role==="admin"&&<DashboardLink href="/admin/seo" title="SEO & Google Search visibility" description="Sitemap, indexing guidance and article SEO checks"/>}
+              {profile.role==="admin"&&<DashboardLink href="/admin/images" title="Automatic featured images" description="Find public-domain images and add URLs to draft articles"/>}
             </div>
             <div className="mt-4 rounded-xl border border-slate-100 p-3">
               <h4 className="text-xs font-extrabold text-slate-700">Article management</h4>
