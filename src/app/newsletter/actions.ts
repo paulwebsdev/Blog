@@ -27,4 +27,3 @@ export async function subscribeToNewsletter(_previous: NewsletterState, formData
     return { status: "error", message: "We couldn't complete your subscription right now. Please try again shortly." };
   }
 }
-export const newsletterInitialState = initialMessage;
