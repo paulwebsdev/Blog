@@ -182,7 +182,7 @@ export async function saveArticle(formData: FormData) {
       result.reason === "no-consented-subscribers" ? "no-subscribers" :
       result.failed ? "notifications-partial" : "notifications-not-configured";
   }
-  redirect("/admin?publication=" + (status === "published" ? "published" : status) + (notificationSummary ? "&email=" + notificationSummary : ""));
+  redirect("/admin?publication=" + (status === "published" ? "published" : status) + (status === "published" ? "&articleId=" + encodeURIComponent(saved.id) : "") + (notificationSummary ? "&email=" + notificationSummary : ""));
 }
 export async function publishArticleNow(formData: FormData) {
   const { supabase } = await requireEditor();
@@ -202,7 +202,7 @@ export async function publishArticleNow(formData: FormData) {
   const email = result.reason === "complete" ? "notifications-sent" :
     result.reason === "no-consented-subscribers" ? "no-subscribers" :
     result.failed ? "notifications-partial" : "notifications-not-configured";
-  redirect("/admin?publication=published&email=" + email);
+  redirect("/admin?publication=published&articleId=" + encodeURIComponent(id) + "&email=" + email);
 }
 
 export async function unpublishArticle(formData: FormData) {
