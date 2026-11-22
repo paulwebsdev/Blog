@@ -15,7 +15,7 @@ export default async function AdSenseReadinessPage() {
 
   const [{ data: settings }, { data: articles, error: articleError }] = await Promise.all([
     supabase.from("site_settings").select("google_site_verification").eq("id", 1).maybeSingle(),
-    supabase.from("articles").select("id,title,image_url,status").eq("status", "published")
+    supabase.from("articles").select("id,title,image_url,status,sources").eq("status", "published")
   ]);
 
   const publisherId = process.env.ADSENSE_PUBLISHER_ID?.trim() ?? "";
@@ -26,6 +26,7 @@ export default async function AdSenseReadinessPage() {
   const validClient = /^ca-pub-\d{16}$/.test(clientId);
   const publishedCount = articles?.length ?? 0;
   const imageCount = articles?.filter((item) => Boolean(item.image_url)).length ?? 0;
+  const sourcedArticles = articles?.filter((item) => Array.isArray(item.sources) && item.sources.length > 0).length ?? 0;
 
   const checks: Check[] = [
     { label: "About page", ready: true, detail: "Published at /about." },
@@ -36,12 +37,13 @@ export default async function AdSenseReadinessPage() {
     { label: "Google Search Console ownership", ready: false, detail: verification ? "The HTML verification token is configured, but ownership verification must still be confirmed inside Google Search Console." : "Add the Search Console HTML verification token, then verify ownership inside Google Search Console." },
     { label: "Sitemap submitted to Google", ready: false, detail: "The sitemap route is generated, but submission in Search Console has not been confirmed. Submit https://paulnova.name.ng/sitemap.xml after verifying ownership." },
     { label: "Published original content", ready: !articleError && publishedCount > 0, detail: articleError ? "Could not read published article records." : `${publishedCount} published article(s) currently found. Google evaluates content quality and originality, not a fixed article count.` },
+    { label: "Article sources and further reading", ready: !articleError && publishedCount > 0 && sourcedArticles === publishedCount, detail: `${sourcedArticles} of ${publishedCount} published articles include a source list. Review every source for accuracy and keep time-sensitive references current.` },
     { label: "Article images", ready: publishedCount > 0 && imageCount === publishedCount, detail: `${imageCount} of ${publishedCount} published articles have a featured image URL. Use relevant, permitted images and descriptive alt text.` },
     { label: "AdSense publisher ID", ready: validPublisher, detail: validPublisher ? "Publisher ID format is configured for ads.txt." : "Set ADSENSE_PUBLISHER_ID to your Google-issued pub- followed by 16 digits." },
     { label: "AdSense client ID", ready: validClient, detail: validClient ? "Client ID format is configured." : "Set NEXT_PUBLIC_ADSENSE_CLIENT to your Google-issued ca-pub- ID." },
     { label: "AdSense script switch", ready: adsEnabled && validClient, detail: adsEnabled && validClient ? "AdSense script is enabled." : "Keep disabled until your account, site verification and consent messaging are ready; then set NEXT_PUBLIC_ADSENSE_ENABLE=true." },
     { label: "ads.txt endpoint", ready: validPublisher, detail: validPublisher ? "The /ads.txt route will publish your authorized seller record." : "The route is prepared and will become available after the publisher ID is configured." },
-    { label: "Google consent messaging", ready: false, detail: "Still requires setup in AdSense using Google's certified consent management platform for users in regions where Google requires it. Do not enable ad serving before this is completed." }
+    { label: "Google consent messaging", ready: false, detail: "For personalised ads served to users in the EEA, UK or Switzerland, use a Google-certified CMP integrated with the IAB TCF. Review applicable consent rules for all other visitor locations before enabling ads." }
   ];
 
   const completed = checks.filter((check) => check.ready).length;
