@@ -1,0 +1,28 @@
+name: Keep PaulNova Warm
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: paulnova-keep-warm
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Send lightweight keep-alive request
+        env:
+          TARGET_URL: https://paulnova-qo8f.onrender.com/
+        run: |
+          curl --fail --silent --show-error \
+            --retry 2 --retry-delay 5 --max-time 30 \
+            --output /dev/null \
+            --write-out "PaulNova response: %{http_code}\n" \
+            "$TARGET_URL"
