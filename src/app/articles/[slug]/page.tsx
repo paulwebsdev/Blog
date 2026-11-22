@@ -85,9 +85,7 @@ export default async function ArticlePage({ params }: Props) {
     description: article.seoDescription,
     datePublished: new Date(article.publishedAt).toISOString(),
     dateModified: new Date(article.updatedAt || article.publishedAt).toISOString(),
-    author: article.authorSlug
-      ? { "@type": "Person", name: article.author, url: `${base}/authors/${article.authorSlug}` }
-      : { "@type": "Organization", name: article.author },
+    author: { "@type": "Organization", name: article.author, url: article.authorSlug ? `${base}/authors/${article.authorSlug}` : base },
     publisher: { "@type": "Organization", name: "PaulNova", url: base },
     inLanguage: "en",
     articleSection: article.category,
