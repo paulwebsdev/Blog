@@ -125,7 +125,7 @@ export default async function ArticlePage({ params }: Props) {
         <div className="article-content mt-10">
           {article.sections.map((section) => <section key={section.heading} className="mb-9">
             <h2 className="mb-4 text-2xl font-extrabold tracking-tight text-[#101828]">{section.heading}</h2>
-            {section.paragraphs.map((paragraph) => <p key={paragraph} className="mb-4 text-base leading-8 text-slate-600">{paragraph}</p>)}
+            {section.paragraphs.map((paragraph) => <p key={paragraph} className="mb-4 text-base leading-8 text-slate-600">{renderLinkedParagraph(paragraph)}</p>)}
           </section>)}
         </div>
         {article.sources?.length ? <section className="mt-12 rounded-2xl border border-slate-100 bg-slate-50 p-6" aria-labelledby="article-sources-heading">
