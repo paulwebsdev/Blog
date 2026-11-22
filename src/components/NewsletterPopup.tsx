@@ -8,6 +8,7 @@ export default function NewsletterPopup() {
   const [open, setOpen] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathname = usePathname();
+  const dismissedKey = "paulnova:newsletter-popup-dismissed-until";
 
   useEffect(() => {
     if (pathname === "/newsletter" || pathname.startsWith("/admin")) {
@@ -16,8 +17,10 @@ export default function NewsletterPopup() {
       return;
     }
 
+    const dismissedUntil = Number(localStorage.getItem(dismissedKey) || 0);
+    if (dismissedUntil > Date.now()) return;
     const show = () => setOpen(true);
-    timer.current = setTimeout(show, 8000);
+    timer.current = setTimeout(show, 30_000);
     return () => {
       if (timer.current) clearTimeout(timer.current);
     };
@@ -25,8 +28,8 @@ export default function NewsletterPopup() {
 
   const dismiss = () => {
     setOpen(false);
+    localStorage.setItem(dismissedKey, String(Date.now() + 7 * 24 * 60 * 60 * 1000));
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => setOpen(true), 60_000);
   };
 
   useEffect(() => {
