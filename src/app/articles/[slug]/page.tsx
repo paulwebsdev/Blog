@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock3 } from "lucide-react";
 import { getPublicArticle, getPublicArticles } from "@/lib/content";
@@ -9,6 +10,26 @@ import AdSlot from "@/components/AdSlot";
 import SiteLogo from "@/components/SiteLogo";
 
 type Props = { params: Promise<{ slug: string }> };
+
+function renderLinkedParagraph(paragraph: string) {
+  const parts = paragraph.split(/(https?:\\/\\/[^\\s<>"']+)/g);
+  return parts.map((part, index) => {
+    if (!/^https?:\\/\\//i.test(part)) return part;
+    let href = part;
+    let trailing = "";
+    while (/[.,;:!?)]$/.test(href)) {
+      trailing = href.slice(-1) + trailing;
+      href = href.slice(0, -1);
+    }
+    try {
+      const parsed = new URL(href);
+      if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return part;
+      return <Fragment key={index}><a href={parsed.toString()} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#5148e5] underline decoration-violet-200 underline-offset-4 hover:decoration-[#5148e5]">{href}</a>{trailing}</Fragment>;
+    } catch {
+      return part;
+    }
+  });
+}
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -74,7 +95,8 @@ export default async function ArticlePage({ params }: Props) {
     wordCount: article.sections.flatMap((section) => section.paragraphs ?? []).join(" ").split(/\s+/).filter(Boolean).length,
     isAccessibleForFree: true,
     mainEntityOfPage: { "@type": "WebPage", "@id": `${base}/articles/${article.slug}` },
-    image: article.imageUrl ? [article.imageUrl] : undefined
+    image: article.imageUrl ? [article.imageUrl] : undefined,
+    citation: article.sources?.map((source) => source.url)
   };
 
   return (
@@ -106,6 +128,10 @@ export default async function ArticlePage({ params }: Props) {
             {section.paragraphs.map((paragraph) => <p key={paragraph} className="mb-4 text-base leading-8 text-slate-600">{paragraph}</p>)}
           </section>)}
         </div>
+        {article.sources?.length ? <section className="mt-12 rounded-2xl border border-slate-100 bg-slate-50 p-6" aria-labelledby="article-sources-heading">
+          <h2 id="article-sources-heading" className="text-lg font-extrabold text-slate-900">Sources and further reading</h2>
+          <ul className="mt-4 space-y-3">{article.sources.map((source) => <li key={source.url} className="text-sm leading-6"><a href={source.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#5148e5] underline decoration-violet-200 underline-offset-4 hover:decoration-[#5148e5]">{source.title}</a><span className="ml-2 text-xs text-slate-400">External resource</span></li>)}</ul>
+        </section> : null}
         {article.correctionNote && <aside className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-5" aria-label="Article correction or update"><h2 className="text-sm font-extrabold text-amber-950">Correction / update</h2><p className="mt-2 text-sm leading-6 text-amber-900">{article.correctionNote}</p></aside>}
         {related.length > 0 && <section className="mt-14"><h2 className="text-2xl font-black text-[#101828]">Related articles</h2><div className="mt-5 grid gap-4 sm:grid-cols-2">{related.map((item) => <Link key={item.slug} href={"/articles/" + item.slug} className="rounded-2xl border border-slate-100 p-5 transition hover:border-violet-200 hover:shadow-lg"><span className="text-[10px] font-bold uppercase tracking-widest text-[#635bff]">{item.category}</span><h3 className="mt-2 font-extrabold text-slate-900">{item.title}</h3><p className="mt-2 text-sm leading-6 text-slate-500">{item.excerpt}</p></Link>)}</div></section>}
       </article>
