@@ -12,9 +12,9 @@ import SiteLogo from "@/components/SiteLogo";
 type Props = { params: Promise<{ slug: string }> };
 
 function renderLinkedParagraph(paragraph: string) {
-  const parts = paragraph.split(/(https?:\\/\\/[^\\s<>"']+)/g);
+  const parts = paragraph.split(/(https?:\/\/[^\s<>"']+)/g);
   return parts.map((part, index) => {
-    if (!/^https?:\\/\\//i.test(part)) return part;
+    if (!/^https?:\/\//i.test(part)) return part;
     let href = part;
     let trailing = "";
     while (/[.,;:!?)]$/.test(href)) {
