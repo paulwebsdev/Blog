@@ -73,7 +73,7 @@ export function ShareArticle({ title }: { title: string }) {
     window.open(target, "_blank", "noopener,noreferrer");
   };
   return <div className="relative">
-    <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label="Share this article" className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-600 hover:border-violet-200 hover:text-[#635bff]"><Share2 size={15}/>Share article</button>
+    <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label="Share article" className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-600 hover:border-violet-200 hover:text-[#635bff]"><Share2 size={15}/>Share article</button>
     {open && <div className="absolute right-0 top-full z-30 mt-3 w-[min(19rem,calc(100vw-2.5rem))] rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
       <div className="mb-3 flex items-center justify-between"><p className="text-sm font-extrabold text-slate-900">Share this article</p><button type="button" onClick={() => setOpen(false)} className="text-xs font-semibold text-slate-400 hover:text-slate-700">Close</button></div>
       <p className="mb-3 text-xs leading-5 text-slate-500">The article link includes its featured image preview when the platform supports link previews.</p>
