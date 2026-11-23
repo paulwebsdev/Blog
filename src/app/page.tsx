@@ -44,7 +44,7 @@ function StoryCard({ article, featured = false }: { article: Article, featured?:
   const palette = article.category === "Artificial Intelligence" ? "from-[#27215f] via-[#5146bd] to-[#9b8cff]" : article.category === "Technology" ? "from-[#063b58] via-[#087e9b] to-[#7bd5d0]" : "from-[#174a37] via-[#25856a] to-[#9ad9a9]";
   return <Link href={`/articles/${article.slug}`} className="group block overflow-hidden rounded-2xl border border-slate-100 bg-white transition hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/60">
     <div className={`article-art bg-gradient-to-br ${palette} ${featured ? "min-h-[300px] md:min-h-[390px]" : "min-h-[205px]"}`}>
-      {article.imageUrl && <img src={article.imageUrl} alt={article.imageAlt || article.title} loading="lazy" className="absolute inset-0 -z-10 h-full w-full object-cover" />}
+      {article.imageUrl && <img src={article.imageUrl} alt={article.imageAlt || article.title} width={1200} height={675} loading="lazy" className="absolute inset-0 -z-10 h-full w-full object-cover" />}
       {article.imageUrl && <span aria-hidden="true" className="absolute inset-0 -z-10 bg-slate-950/20" />}
       <span className="absolute left-5 top-5 rounded-full border border-white/30 bg-white/15 px-3 py-1 text-[10px] font-bold tracking-widest text-white backdrop-blur">{categoryFor(article.category)}</span>
       <span className="ml-auto text-6xl font-black tracking-tighter text-white/30 md:text-7xl">P<span className="text-white/50">N</span></span>
