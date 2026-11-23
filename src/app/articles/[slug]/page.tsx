@@ -67,7 +67,18 @@ export default async function ArticlePage({ params }: Props) {
   const allArticles = await getPublicArticles();
   const article = allArticles.find((item) => item.slug === slug);
   if (!article) notFound();
-  const related = allArticles.filter((item) => item.slug !== article.slug && item.category === article.category).slice(0, 3);
+  const currentTagSlugs = new Set((article.tags ?? []).map((tag) => tag.slug));
+  const related = allArticles
+    .filter((item) => item.slug !== article.slug)
+    .map((item) => {
+      const sharedTags = (item.tags ?? []).filter((tag) => currentTagSlugs.has(tag.slug)).length;
+      const sameCategory = item.category === article.category;
+      return { item, score: sharedTags * 3 + (sameCategory ? 2 : 0) };
+    })
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score || new Date(b.item.publishedAt).getTime() - new Date(a.item.publishedAt).getTime())
+    .slice(0, 3)
+    .map((entry) => entry.item);
   const supabase = await createClient();
   const { data: articleRow } = await supabase.from("articles").select("id").eq("slug", slug).maybeSingle();
   const { data: sponsorship } = articleRow ? await supabase.from("sponsored_posts").select("sponsor_name,disclosure_text").eq("article_id", articleRow.id).eq("status","active").maybeSingle() : {data:null};
@@ -131,7 +142,7 @@ export default async function ArticlePage({ params }: Props) {
           <ul className="mt-4 space-y-3">{article.sources.map((source) => <li key={source.url} className="text-sm leading-6"><a href={source.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#5148e5] underline decoration-violet-200 underline-offset-4 hover:decoration-[#5148e5]">{source.title}</a><span className="ml-2 text-xs text-slate-400">External resource</span></li>)}</ul>
         </section> : null}
         {article.correctionNote && <aside className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-5" aria-label="Article correction or update"><h2 className="text-sm font-extrabold text-amber-950">Correction / update</h2><p className="mt-2 text-sm leading-6 text-amber-900">{article.correctionNote}</p></aside>}
-        {related.length > 0 && <section className="mt-14"><h2 className="text-2xl font-black text-[#101828]">Related articles</h2><div className="mt-5 grid gap-4 sm:grid-cols-2">{related.map((item) => <Link key={item.slug} href={"/articles/" + item.slug} className="rounded-2xl border border-slate-100 p-5 transition hover:border-violet-200 hover:shadow-lg"><span className="text-[10px] font-bold uppercase tracking-widest text-[#635bff]">{item.category}</span><h3 className="mt-2 font-extrabold text-slate-900">{item.title}</h3><p className="mt-2 text-sm leading-6 text-slate-500">{item.excerpt}</p></Link>)}</div></section>}
+        {related.length > 0 && <section className="mt-14"><div><h2 className="text-2xl font-black text-[#101828]">You may also like</h2><p className="mt-2 text-sm text-slate-500">More PaulNova guides selected by topic and category.</p></div><div className="mt-5 grid gap-4 sm:grid-cols-2">{related.map((item) => <Link key={item.slug} href={"/articles/" + item.slug} className="group rounded-2xl border border-slate-100 bg-white p-5 transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-lg"><span className="text-[10px] font-bold uppercase tracking-widest text-[#635bff]">{item.category}</span><h3 className="mt-2 font-extrabold text-slate-900 group-hover:text-[#5148e5]">{item.title}</h3><p className="mt-2 text-sm leading-6 text-slate-500">{item.excerpt}</p><span className="mt-4 inline-flex text-sm font-bold text-[#5148e5]">Read article <span aria-hidden="true" className="ml-1 transition-transform group-hover:translate-x-1">→</span></span></Link>)}</div></section>}
       </article>
     </main>
   );
