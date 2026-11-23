@@ -72,17 +72,17 @@ export default async function Home() {
         <div className="relative z-10">
           <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-violet-100 bg-white px-4 py-2 text-[11px] font-bold text-[#635bff] shadow-sm"><Sparkles size={14}/> IDEAS FOR WHAT'S NEXT</div>
           <h1 className="max-w-[680px] text-5xl font-black leading-[1.04] tracking-[-.055em] text-[#101828] md:text-7xl">Make sense of <span className="text-[#635bff]">what's next.</span></h1>
-          <p className="mt-7 max-w-xl text-base leading-8 text-slate-500 md:text-lg">Technology is changing everything. We help you understand it, use it and find your next opportunity — wherever you are in the world.</p>
+          <p className="mt-7 max-w-xl text-base leading-8 text-slate-600 md:text-lg">Technology is changing everything. We help you understand it, use it and find your next opportunity — wherever you are in the world.</p>
           <div className="mt-9 flex flex-wrap gap-3"><Link href="#latest" className="rounded-full bg-[#635bff] px-7 py-4 text-sm font-bold text-white shadow-lg shadow-violet-200 transition hover:-translate-y-0.5 hover:bg-[#5148e5]">Explore the latest <ArrowRight className="ml-2 inline" size={16}/></Link><Link href="#topics" className="rounded-full border border-slate-200 bg-white px-7 py-4 text-sm font-bold text-slate-700 hover:border-violet-200 hover:text-[#635bff]">Browse topics</Link></div>
-          <div className="mt-12 flex items-center gap-3 text-xs text-slate-400"><span className="h-px w-9 bg-violet-300"/><span>TECHNOLOGY. INTELLIGENCE. OPPORTUNITIES.</span></div>
+          <div className="mt-12 flex items-center gap-3 text-xs text-slate-600"><span className="h-px w-9 bg-violet-300"/><span>TECHNOLOGY. INTELLIGENCE. OPPORTUNITIES.</span></div>
         </div>
         <div className="relative mx-auto w-full max-w-[470px]">
           <div className="absolute -left-8 top-10 h-24 w-24 rounded-3xl bg-[#dcd9ff] blur-2xl"/><div className="relative rounded-[32px] bg-gradient-to-br from-[#211b56] via-[#5146bd] to-[#a59bff] p-8 shadow-2xl shadow-violet-200 md:p-10">
             <div className="flex items-center justify-between text-white/70"><span className="text-[10px] font-bold tracking-[.2em]">THE NEXT FRONTIER</span><Zap size={18}/></div>
             <div className="my-12"><div className="mb-3 text-sm font-semibold text-violet-200">Ideas meet possibility</div><div className="text-6xl font-black leading-none tracking-tighter text-white md:text-7xl">Think<br/>forward<span className="text-violet-300">.</span></div></div>
-            <div className="flex items-end justify-between border-t border-white/20 pt-5"><span className="text-xs leading-5 text-white/65">A clearer view of<br/>our digital future.</span><span className="grid h-11 w-11 place-items-center rounded-full bg-white text-[#5146bd]"><ArrowUpRight size={21}/></span></div>
+            <div className="flex items-end justify-between border-t border-white/20 pt-5"><span className="text-xs leading-5 text-white/85">A clearer view of<br/>our digital future.</span><span className="grid h-11 w-11 place-items-center rounded-full bg-white text-[#5146bd]"><ArrowUpRight size={21}/></span></div>
           </div>
-          <div className="absolute -bottom-5 -left-5 rounded-2xl border border-slate-100 bg-white px-5 py-4 shadow-lg"><div className="text-[10px] font-bold tracking-widest text-slate-400">PAULNOVA</div><div className="mt-1 text-sm font-extrabold text-slate-800">Ideas for a better digital life.</div></div>
+          <div className="absolute -bottom-5 -left-5 rounded-2xl border border-slate-100 bg-white px-5 py-4 shadow-lg"><div className="text-[10px] font-bold tracking-widest text-slate-600">PAULNOVA</div><div className="mt-1 text-sm font-extrabold text-slate-800">Ideas for a better digital life.</div></div>
         </div>
       </div>
     </section>
