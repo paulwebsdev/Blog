@@ -26,7 +26,7 @@ export default async function AdSenseReadinessPage() {
   const validClient = /^ca-pub-\d{16}$/.test(clientId);
   const publishedCount = articles?.length ?? 0;
   const imageCount = articles?.filter((item) => Boolean(item.image_url)).length ?? 0;
-  const sourcedArticles = articles?.filter((item) => Array.isArray(item.sources) && item.sources.length > 0).length ?? 0;
+  const sourcedArticles = articles?.filter((item) => Array.isArray(item.sources) && item.sources.some((source) => source.url && !source.url.includes("unsplash.com"))).length ?? 0;
 
   const checks: Check[] = [
     { label: "About page", ready: true, detail: "Published at /about." },
@@ -34,10 +34,10 @@ export default async function AdSenseReadinessPage() {
     { label: "Privacy policy", ready: true, detail: "Published at /privacy; review it again when AdSense is activated." },
     { label: "Terms, disclaimer and editorial policy", ready: true, detail: "Public policy pages are present." },
     { label: "Sitemap and crawler rules", ready: true, detail: "Generated sitemap.xml and robots.txt routes are present." },
-    { label: "Google Search Console ownership", ready: false, detail: verification ? "The HTML verification token is configured, but ownership verification must still be confirmed inside Google Search Console." : "Add the Search Console HTML verification token, then verify ownership inside Google Search Console." },
-    { label: "Sitemap submitted to Google", ready: false, detail: "The sitemap route is generated, but submission in Search Console has not been confirmed. Submit https://paulnova.name.ng/sitemap.xml after verifying ownership." },
+    { label: "Google Search Console ownership", ready: Boolean(verification), detail: verification ? "The verification token is configured and Search Console ownership was confirmed for the PaulNova URL-prefix property." : "Add the Search Console HTML verification token, then verify ownership inside Google Search Console." },
+    { label: "Sitemap submitted to Google", ready: true, detail: "The site owner confirmed sitemap.xml was submitted in Search Console. Monitor its processing status there." },
     { label: "Published original content", ready: !articleError && publishedCount > 0, detail: articleError ? "Could not read published article records." : `${publishedCount} published article(s) currently found. Google evaluates content quality and originality, not a fixed article count.` },
-    { label: "Article sources and further reading", ready: !articleError && publishedCount > 0 && sourcedArticles === publishedCount, detail: `${sourcedArticles} of ${publishedCount} published articles include a source list. Review every source for accuracy and keep time-sensitive references current.` },
+    { label: "Article sources and further reading", ready: !articleError && publishedCount > 0 && sourcedArticles === publishedCount, detail: `${sourcedArticles} of ${publishedCount} published articles include at least one non-image source. Review every source for accuracy and keep time-sensitive references current.` },
     { label: "Article images", ready: publishedCount > 0 && imageCount === publishedCount, detail: `${imageCount} of ${publishedCount} published articles have a featured image URL. Use relevant, permitted images and descriptive alt text.` },
     { label: "AdSense publisher ID", ready: validPublisher, detail: validPublisher ? "Publisher ID format is configured for ads.txt." : "Set ADSENSE_PUBLISHER_ID to your Google-issued pub- followed by 16 digits." },
     { label: "AdSense client ID", ready: validClient, detail: validClient ? "Client ID format is configured." : "Set NEXT_PUBLIC_ADSENSE_CLIENT to your Google-issued ca-pub- ID." },
