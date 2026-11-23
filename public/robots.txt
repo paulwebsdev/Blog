@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /bookmarks
+Disallow: /search
+Disallow: /newsletter/unsubscribe
+
+Sitemap: https://paulnova.name.ng/sitemap.xml
