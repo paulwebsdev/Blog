@@ -12,7 +12,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const supabase = await createClient();
   const { data } = await supabase.from("profiles").select("display_name,bio").eq("author_slug", slug).maybeSingle();
-  return data ? { title: data.display_name || "Author", description: data.bio || `Articles and insights by ${data.display_name || "the PaulNova editorial team"}.` } : { title: "Author not found" };
+  if (!data) return { title: "Author not found" };
+  const rawDescription = data.bio || `Articles and insights by ${data.display_name || "the PaulNova editorial team"}.`;
+  const description = rawDescription.length > 155 ? `${rawDescription.slice(0, 152).trimEnd()}…` : rawDescription;
+  return { title: data.display_name || "Author", description };
 }
 
 export default async function AuthorPage({ params }: Props) {
