@@ -9,7 +9,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const articles = await getPublicArticles();
   const tag = articles.flatMap((article) => article.tags ?? []).find((item) => item.slug === slug);
-  return tag ? { title: `#${tag.name}`, description: `PaulNova articles and practical guides about ${tag.name}.` } : { title: "Topic not found" };
+  return tag ? {
+    title: `#${tag.name}`,
+    description: `Explore PaulNova guides about ${tag.name}, with practical explainers, useful tools, safety tips and ideas you can apply.`,
+    robots: { index: false, follow: true }
+  } : { title: "Topic not found", robots: { index: false, follow: true } };
 }
 export default async function TagPage({ params }: Props) {
   const { slug } = await params;
