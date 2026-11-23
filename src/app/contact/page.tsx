@@ -4,7 +4,7 @@ import { ArrowLeft, Mail, MessageCircle } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Contact PaulNova",
-  description: "Get in touch with the PaulNova team for feedback, editorial enquiries, partnerships and other questions.",
+  description: "Contact PaulNova for reader feedback, corrections, editorial enquiries, partnerships and general questions.",
 };
 
 const contactEmail = "contact.paulnova@gmail.com";
@@ -29,6 +29,11 @@ export default function ContactPage() {
           <a href={`mailto:${contactEmail}?subject=Enquiry%20for%20PaulNova`} className="mt-6 inline-flex max-w-full items-center gap-2 break-all rounded-full bg-[#635bff] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-[#5148e5]"><MessageCircle size={17}/> {contactEmail}</a>
           <p className="mt-5 text-xs leading-5 text-slate-400">When you contact us, please include a clear subject so we can direct your message to the right person.</p>
         </div>
+        <section className="mt-10 rounded-2xl border border-slate-100 bg-white p-7">
+          <h2 className="text-lg font-extrabold text-slate-900">What to include in your message</h2>
+          <p className="mt-3 text-sm leading-7 text-slate-600">For a correction, include the article URL, the passage you are concerned about and a reliable source that supports the suggested change. For a partnership or business enquiry, briefly describe your organisation, the opportunity and the best way to reach you. Please do not email passwords, payment-card details or other sensitive account information.</p>
+          <p className="mt-3 text-sm leading-7 text-slate-600">PaulNova reviews reader feedback as part of its editorial process. You can also read our <Link href="/editorial-policy" className="font-semibold text-[#5148e5] underline">Editorial Policy</Link> and <Link href="/corrections" className="font-semibold text-[#5148e5] underline">Corrections page</Link> to understand how we handle updates.</p>
+        </section>
         <p className="mt-8 text-sm text-slate-500">PaulNova — Technology. Intelligence. Opportunities.</p>
       </section>
     </main>
