@@ -128,7 +128,7 @@ export default async function ArticlePage({ params }: Props) {
           <time dateTime={article.publishedAt}>{new Date(article.publishedAt).toLocaleDateString("en", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })}</time>{article.updatedAt && new Date(article.updatedAt).getTime() > new Date(article.publishedAt).getTime() && <><span>·</span><span>Updated <time dateTime={article.updatedAt}>{new Date(article.updatedAt).toLocaleDateString("en", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" })}</time></span></>}<span>·</span>
           <span className="inline-flex items-center gap-1"><Clock3 size={13}/>{article.readTime}</span><div className="flex flex-wrap gap-2 sm:ml-auto"><BookmarkButton slug={article.slug}/><ShareArticle title={article.title}/></div>
         </div>
-        {article.imageUrl && <img src={article.imageUrl} alt={article.imageAlt || article.title} className="mt-9 max-h-[440px] w-full rounded-2xl object-cover" loading="eager" />}
+        {article.imageUrl && <img src={article.imageUrl} alt={article.imageAlt || article.title} width={1200} height={675} fetchPriority="high" className="mt-9 max-h-[440px] w-full rounded-2xl object-cover" loading="eager" />}
         {article.tags?.length ? <div className="mt-5 flex flex-wrap gap-2" aria-label="Article topics">{article.tags.map((tag) => <Link key={tag.slug} href={`/tags/${tag.slug}`} className="rounded-full bg-violet-50 px-3 py-1.5 text-xs font-semibold text-[#5148e5] hover:bg-violet-100">#{tag.name}</Link>)}</div> : null}
         <AdSlot placement="in_article"/>
         <div className="article-content mt-10">
