@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { createClient } from "@/lib/supabase/client";
 
 const CONSENT_KEY = "paulnova:analytics-consent";
 const SESSION_KEY = "paulnova:analytics-session";
@@ -68,10 +67,17 @@ export default function PageViewTracker() {
     const consented = () => localStorage.getItem(CONSENT_KEY) === "accepted";
     const articleMatch = pathname.match(/^\/articles\/([^/]+)$/);
     const articleSlug = articleMatch ? decodeURIComponent(articleMatch[1]).slice(0, 200) : null;
-    const supabase = createClient();
+    let supabasePromise: Promise<ReturnType<typeof import("@/lib/supabase/client").createClient>> | null = null;
+    const getSupabase = () => {
+      if (!supabasePromise) {
+        supabasePromise = import("@/lib/supabase/client").then(({ createClient }) => createClient());
+      }
+      return supabasePromise;
+    };
     const record = async (eventType: string, eventValue: string | null = null, durationSeconds: number | null = null) => {
       if (!consented()) return;
       const { sessionId, referrerHost, trafficSource, utmMedium, utmCampaign } = getSessionContext();
+      const supabase = await getSupabase();
       await supabase.from("page_views").insert({
         page_path: pathname.slice(0, 500),
         page_title: document.title.slice(0, 300),
