@@ -29,7 +29,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const category = categories.find((item) => item.slug === slug);
   if (!category) notFound();
   const articles = await getPublicArticles();
-  const items = articles.filter((article) => matches[slug]?.includes(article.category));
+  const items = articles.filter((article) => matches[slug]?.includes(article.category))
+    .sort((a, b) => slug === "blogging-class" ? new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime() : 0);
   const pageSize = 12;
   const pageCount = Math.max(1, Math.ceil(items.length / pageSize));
   const currentPage = Math.min(requestedPage, pageCount);
