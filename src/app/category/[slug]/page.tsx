@@ -9,9 +9,10 @@ const categories = [
   { slug: "technology", name: "Technology", description: "Clear guides to useful apps, software, devices and the digital tools shaping everyday life." },
   { slug: "artificial-intelligence", name: "Artificial Intelligence", description: "Understand AI, explore practical tools and learn how intelligent systems are changing work and life." },
   { slug: "business-money", name: "Business & Money", description: "Ideas for digital business, independent work, money and building opportunities in a connected world." },
-  { slug: "education-careers", name: "Education & Careers", description: "Build relevant skills, discover learning paths and prepare for a changing world of work." }
+  { slug: "education-careers", name: "Education & Careers", description: "Build relevant skills, discover learning paths and prepare for a changing world of work." },
+  { slug: "blogging-class", name: "Blogging Class", description: "Practical, beginner-friendly lessons on starting a blog, writing useful articles, SEO, audience growth, monetisation and building a sustainable digital publication." }
 ];
-const matches: Record<string, string[]> = { technology: ["Technology"], "artificial-intelligence": ["Artificial Intelligence"], "business-money": ["Business & Money"], "education-careers": ["Education & Careers"] };
+const matches: Record<string, string[]> = { technology: ["Technology"], "artificial-intelligence": ["Artificial Intelligence"], "business-money": ["Business & Money"], "education-careers": ["Education & Careers"], "blogging-class": ["Blogging Class"] };
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ page?: string }> };
 export function generateStaticParams() { return categories.map(({ slug }) => ({ slug })); }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
