@@ -79,11 +79,18 @@ export default async function ArticlePage({ params }: Props) {
     .sort((a, b) => b.score - a.score || new Date(b.item.publishedAt).getTime() - new Date(a.item.publishedAt).getTime())
     .slice(0, 3)
     .map((entry) => entry.item);
+  const bloggingLessons = article.category === "Blogging Class"
+    ? allArticles.filter((item) => item.category === "Blogging Class")
+        .sort((a, b) => new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime())
+    : [];
+  const lessonIndex = bloggingLessons.findIndex((item) => item.slug === article.slug);
+  const previousLesson = lessonIndex > 0 ? bloggingLessons[lessonIndex - 1] : null;
+  const nextLesson = lessonIndex >= 0 ? bloggingLessons[lessonIndex + 1] ?? null : null;
   const supabase = await createClient();
   const { data: articleRow } = await supabase.from("articles").select("id").eq("slug", slug).maybeSingle();
   const { data: sponsorship } = articleRow ? await supabase.from("sponsored_posts").select("sponsor_name,disclosure_text").eq("article_id", articleRow.id).eq("status","active").maybeSingle() : {data:null};
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng";
-  const categorySlug = article.category === "Artificial Intelligence" ? "artificial-intelligence" : article.category === "Business & Money" ? "business-money" : article.category === "Education & Careers" ? "education-careers" : "technology";
+  const categorySlug = article.category === "Blogging Class" ? "blogging-class" : article.category === "Artificial Intelligence" ? "artificial-intelligence" : article.category === "Business & Money" ? "business-money" : article.category === "Education & Careers" ? "education-careers" : "technology";
   const breadcrumbData = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
     { "@type": "ListItem", position: 1, name: "Home", item: base },
     { "@type": "ListItem", position: 2, name: article.category, item: `${base}/category/${categorySlug}` },
