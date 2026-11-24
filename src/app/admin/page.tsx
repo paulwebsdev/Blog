@@ -53,6 +53,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
             <div className="mt-3 grid gap-2">
               <DashboardLink href="/admin" title="Dashboard overview" description="Your workspace and recent activity"/>
               <DashboardLink href="/admin/articles/new" title="Create a new article" description="Write, edit and schedule stories"/>
+              <DashboardLink href="/admin/drafts" title="Draft articles" description="Search drafts and view Blogging Class separately from other articles"/>
               <DashboardLink href="/admin/facebook" title="Facebook post library" description="Ready-to-share Facebook posts for every published article"/>
               <DashboardLink href="/admin/blogging-class-facebook" title="Blogging Class Facebook library" description="A separate library for lesson announcements, tips, tutorials, engagement posts and video scripts"/>
               <DashboardLink href="/admin/author" title="Author profile" description="Manage your public author biography and profile image"/>
