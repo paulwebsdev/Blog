@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import CopyBloggingClassPost from "./copy-post-button";
 import ConfirmDeletePostForm from "./confirm-delete-form";
-import { saveBloggingClassFacebookPost, setBloggingClassFacebookPostStatus, deleteBloggingClassFacebookPost } from "./actions";
+import { saveBloggingClassFacebookPost, setBloggingClassFacebookPostStatus } from "./actions";
 
 export const dynamic = "force-dynamic";
 
