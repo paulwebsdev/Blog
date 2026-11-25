@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getPublicArticles } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
-const categorySlugs = ["technology", "artificial-intelligence", "business-money", "education-careers"];
+const categorySlugs = ["technology", "artificial-intelligence", "business-money", "education-careers", "blogging-class"];
 const staticPages = ["about", "contact", "privacy", "terms", "editorial-policy", "advertise", "faq", "disclaimer", "corrections"];
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://paulnova.name.ng";
