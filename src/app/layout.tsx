@@ -25,6 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
   title: { default: "PaulNova — Technology. Intelligence. Opportunities.", template: "%s | PaulNova" },
   description: "Discover technology, understand artificial intelligence, explore digital business and money, and find education and career opportunities with PaulNova.",
   applicationName: "PaulNova",
+  other: { "google-adsense-account": "ca-pub-6344993046281105" },
   category: "technology",
   openGraph: {
     type: "website",
