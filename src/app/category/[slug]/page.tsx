@@ -68,6 +68,14 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       <h1 className="mt-3 text-4xl font-black tracking-tight text-[#101828] md:text-6xl">{category.name}</h1>
       <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600">{category.description}</p>
 
+      {slug === "technology" && <div className="mt-7 max-w-3xl space-y-4 text-sm leading-7 text-slate-600">
+        <p>Technology choices affect cost, privacy, security and everyday productivity. Before installing an app or buying a device, check who makes it, what permissions it requests, whether it receives security updates and how you can export your data. Compare the features you will actually use instead of choosing a tool only because it is popular.</p>
+        <p>PaulNova's technology coverage focuses on practical decisions: setting up devices, choosing useful software, protecting personal information and solving common digital problems. We aim to explain trade-offs in plain language and point readers to official product documentation when settings or requirements change.</p>
+        <p>If you are troubleshooting a device, start with the manufacturer's support guidance and avoid downloads from unfamiliar websites. For software, review privacy settings, renewal costs and account-recovery options before relying on it for important work.</p>
+        <p>For readers using phones and limited data plans, practical technology choices also include file size, offline access, battery use, storage requirements and whether a service works reliably on a slower connection. Test important tools on the device you actually use before paying for a subscription or moving essential work into a new platform.</p>
+        <p>When learning a new tool, start with one task and use the provider's official documentation. Test unfamiliar features with sample information rather than private customer records, and keep a copy of important files before changing platforms. If you are preparing for clients or employers, a <Link href="/articles/build-professional-portfolio-website-without-coding" className="font-semibold text-[#5148e5] underline underline-offset-4">professional portfolio website</Link> can help demonstrate the practical work you can do.</p>
+      </div>}
+
       {slug === "blogging-class" && <div className="mt-7 max-w-3xl space-y-4 rounded-2xl border border-violet-100 bg-white p-6 text-sm leading-7 text-slate-600 md:p-8">
         <h2 className="text-xl font-extrabold text-slate-900">Learn to build a blog step by step</h2>
         <p>Blogging involves much more than publishing posts. A useful blog starts with a clear audience and subject, answers real questions, makes information easy to navigate and gives readers a reason to return. This learning section is being organised as a practical path for beginners who want to understand the process from the foundations onward.</p>
